@@ -13,8 +13,15 @@ class Game extends Model
         'player_id',
         'score',
         'duration',
-        'played_at'
+        'played_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'played_at' => 'datetime',
+        ];
+    }
 
     // 🔗 Una partida pertenece a un usuario
     public function user()
