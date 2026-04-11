@@ -1,0 +1,51 @@
+<div class="login-page">
+  <div class="login-card">
+    <header class="login-card__header">
+      <img class="login-card__logo" src="/resources/Logo_PTB.png" width="120" height="120" alt="Pin The Ball" />
+      <h1 class="login-card__title">Pin The Ball</h1>
+      <p class="login-card__subtitle">Inicia sesión para continuar</p>
+    </header>
+
+    <form class="login-form" (ngSubmit)="onSubmit()" #f="ngForm">
+      @if (errorMessage(); as err) {
+        <div class="login-form__alert" role="alert">{{ err }}</div>
+      }
+
+      <label class="login-form__field">
+        <span class="login-form__label">Correo electrónico</span>
+        <input
+          class="login-form__input"
+          type="email"
+          name="email"
+          [(ngModel)]="email"
+          required
+          email
+          autocomplete="email"
+          [disabled]="loading()"
+        />
+      </label>
+
+      <label class="login-form__field">
+        <span class="login-form__label">Contraseña</span>
+        <input
+          class="login-form__input"
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          required
+          minlength="1"
+          autocomplete="current-password"
+          [disabled]="loading()"
+        />
+      </label>
+
+      <button class="login-form__submit" type="submit" [disabled]="loading() || f.invalid">
+        @if (loading()) {
+          Entrando…
+        } @else {
+          Entrar
+        }
+      </button>
+    </form>
+  </div>
+</div>
