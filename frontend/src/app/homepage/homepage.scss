@@ -1,0 +1,34 @@
+$background-color1: #0D0221;
+$background-color2: #261447;
+$primary-color: #ff00fa;
+$secondary-color: #ffea1c;
+$text-color: #1bf9fb;
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+@font-face {
+  font-family: 'Retrowave';
+  src: url('../../assets/fonts/retrowave-qzr55.ttf') format('truetype');
+}
+
+body {
+  background-color: $background-color1;
+  color: $text-color;
+}
+
+/* TITULO */
+.title {
+  font-size: 4rem;
+  font-weight: 700;
+  font-family: 'Retrowave', sans-serif;
+
+  background: linear-gradient(
+    90deg,
+    $primary-color,
+    $secondary-color
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 8px;
+}
