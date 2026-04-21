@@ -2,23 +2,26 @@ $background-color1: #0D0221;
 $background-color2: #261447;
 $primary-color: #ff00fa;
 $secondary-color: #ffea1c;
-$text-color: #1bf9fb;
+$text-color-1: #1bf9fb;
+$text-color-2: #15b2b4;
 
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
 @font-face {
   font-family: 'Retrowave';
-  src: url('../../assets/fonts/retrowave-qzr55.ttf') format('truetype');
+  src: url("../../assets/fonts/retrowave-qzr55.ttf") format("truetype");
 }
 
 body {
   background-color: $background-color1;
-  color: $text-color;
+  color: $text-color-1;
+  font-family: 'Orbitron', sans-serif;
 }
 
-/* TITULO */
 .title {
-  font-size: 4rem;
+  display: inline-block;
+  text-align: center;
+  font-size: 36px;
   font-weight: 700;
   font-family: 'Retrowave', sans-serif;
 
@@ -30,5 +33,23 @@ body {
 
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  letter-spacing: 8px;
+  letter-spacing: 3px;
+}
+
+.font-retrowave {
+  font-family: 'Retrowave', sans-serif;
+}
+
+.question {
+  font-size: 24px;
+  font-weight: 400;
+  color: $secondary-color;
+  letter-spacing: 3px;
+}
+
+.answer {
+  font-size: 18px;
+  font-weight: 300;
+  color: $text-color-1;
+  letter-spacing: 2px;
 }

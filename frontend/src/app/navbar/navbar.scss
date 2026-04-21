@@ -1,0 +1,96 @@
+$background-color1: #0D0221;
+$background-color2: #261447;
+$primary-color: #ff00fa;
+$secondary-color: #ffea1c;
+$text-color-1: #1bf9fb;
+$text-color-2: #15b2b4;
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+@font-face {
+    font-family: 'Retrowave';
+    src: url("/assets/fonts/retrowave-qzr55.ttf") format("truetype");
+}
+
+
+.logo img {
+  height: 45px; 
+  width: auto;
+
+  filter: brightness(1.2);
+
+  box-shadow:
+    0 0 5px #ff00fa,
+    0 0 10px #ff00fa,
+    0 0 20px #ff00fa,
+    0 0 40px #ff00fa;
+
+  border-radius: 8px; 
+
+  transition: 0.3s ease-in-out;
+}
+
+.logo img:hover {
+  box-shadow:
+    0 0 5px #ffea1c,
+    0 0 15px #ffea1c,
+    0 0 30px #ffea1c,
+    0 0 60px #ffea1c;
+
+  transform: scale(1.05);
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+
+  background: linear-gradient(90deg, $background-color1, $background-color2);
+  border-bottom: 2px solid $primary-color;
+
+  font-family: 'Orbitron', sans-serif;
+}
+
+.logo {
+  font-family: 'Retrowave', sans-serif;
+  font-size: 28px;
+  color: $primary-color;
+  text-shadow: 0 0 10px $primary-color, 0 0 20px $primary-color;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 25px;
+
+  li {
+    a {
+      text-decoration: none;
+      color: $text-color-1;
+      font-size: 16px;
+      position: relative;
+      transition: 0.3s;
+
+      &:hover {
+        color: $secondary-color;
+        text-shadow: 0 0 5px $secondary-color, 0 0 15px $secondary-color;
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0%;
+        height: 2px;
+        background: $secondary-color;
+        transition: 0.3s;
+      }
+
+      &:hover::after {
+        width: 100%;
+      }
+    }
+  }
+}
