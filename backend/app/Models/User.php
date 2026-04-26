@@ -46,4 +46,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Ball::class, 'user_balls');
     }
+
+    public function friends()
+    {
+        return $this->belongsToMany(User::class, 'friend_user', 'user_id', 'friend_id')
+            ->select('users.id', 'users.name', 'users.email', 'users.role');
+    }
 }

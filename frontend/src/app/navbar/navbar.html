@@ -4,14 +4,18 @@
     </div>
 
     <ul class="nav-links mt-2">
-        <li><a href="#">Homepage</a></li>
-        <li><a href="#">Jugar</a></li>
-        <li><a href="#">Tienda</a></li>
-        <li><a href="#">Login</a></li>
+        <li><a routerLink="">Homepage</a></li>
+        <li><a routerLink="/play">Jugar</a></li>
+        <li><a routerLink="/store">Tienda</a></li>
     </ul>
-
-    <div class="profile">
-        <img src="" alt="Profile Picture">
-    </div>
-
+    
+    @if (token) {
+        <div class="nav-links Profile">
+            <img src="" alt="Profile Picture">
+        </div>
+    } @else {
+        <div class="nav-links Login">
+            <a routerLink="/login">Login</a>
+        </div>
+    }
 </nav>

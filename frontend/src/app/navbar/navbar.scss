@@ -16,14 +16,14 @@ $text-color-2: #15b2b4;
 .logo img {
   height: 45px; 
   width: auto;
-
+  
   filter: brightness(1.2);
 
   box-shadow:
-    0 0 5px #ff00fa,
-    0 0 10px #ff00fa,
-    0 0 20px #ff00fa,
-    0 0 40px #ff00fa;
+    0 0 1px $primary-color,
+    0 0 5px $primary-color,
+    0 0 10px $primary-color,
+    0 0 20px $primary-color;
 
   border-radius: 8px; 
 
@@ -32,10 +32,10 @@ $text-color-2: #15b2b4;
 
 .logo img:hover {
   box-shadow:
-    0 0 5px #ffea1c,
-    0 0 15px #ffea1c,
-    0 0 30px #ffea1c,
-    0 0 60px #ffea1c;
+    0 0 1px $secondary-color,
+    0 0 5px $secondary-color,
+    0 0 10px $secondary-color,
+    0 0 20px $secondary-color;
 
   transform: scale(1.05);
 }
@@ -46,7 +46,7 @@ $text-color-2: #15b2b4;
   align-items: center;
   padding: 15px 30px;
 
-  background: linear-gradient(90deg, $background-color1, $background-color2);
+  background: $background-color2;
   border-bottom: 2px solid $primary-color;
 
   font-family: 'Orbitron', sans-serif;
@@ -63,34 +63,33 @@ $text-color-2: #15b2b4;
   list-style: none;
   display: flex;
   gap: 25px;
+}
 
-  li {
-    a {
-      text-decoration: none;
-      color: $text-color-1;
-      font-size: 16px;
-      position: relative;
-      transition: 0.3s;
+a {
+  text-decoration: none;
+  color: $text-color-1;
+  font-size: 16px;
+  position: relative;
+  transition: 0.3s;
 
-      &:hover {
-        color: $secondary-color;
-        text-shadow: 0 0 5px $secondary-color, 0 0 15px $secondary-color;
-      }
+  &:hover {
+    color: $secondary-color;
+    text-shadow: 0 0 5px $secondary-color, 0 0 15px $secondary-color;
+  }
 
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: -5px;
-        left: 0;
-        width: 0%;
-        height: 2px;
-        background: $secondary-color;
-        transition: 0.3s;
-      }
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background: $secondary-color;
+    transition: 0.3s;
+  }
 
-      &:hover::after {
-        width: 100%;
-      }
-    }
+  &:hover::after {
+    width: 100%;
   }
 }
+  

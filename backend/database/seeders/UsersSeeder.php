@@ -15,7 +15,7 @@ class UsersSeeder extends Seeder
         DB::table('users')->insert([
             [
                 'name' => 'Admin',
-                'email' => 'admin@pinball.com',
+                'email' => 'admin@pintheball.com',
                 'password' => Hash::make('123456'),
                 'role' => 'admin',
                 'available_at' => $now,
@@ -23,7 +23,7 @@ class UsersSeeder extends Seeder
             ],
             [
                 'name' => 'Player1',
-                'email' => 'player1@pinball.com',
+                'email' => 'player1@pintheball.com',
                 'password' => Hash::make('123456'),
                 'role' => 'player',
                 'available_at' => $now,

@@ -1,7 +1,8 @@
-<?php
++<?php
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BallController;
+use App\Http\Controllers\Api\FriendController;
 use App\Http\Controllers\Api\GameController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
@@ -22,4 +23,10 @@ Route::post('/login', [AuthController::class, 'login']);
     Route::get('/users/{user}/balls', [UserController::class, 'userBalls']);
     Route::post('/users/buy-ball', [UserController::class, 'buyBall']);
     Route::apiResource('users', UserController::class);
+
+    Route::get('/friends', [FriendController::class, 'index']);
+    Route::post('/friends', [FriendController::class, 'store']);
+    Route::delete('/friends/{friend}', [FriendController::class, 'destroy']);
+    Route::get('/friends/leaderboard', [FriendController::class, 'leaderboard']);
+
 //});
