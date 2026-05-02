@@ -13,7 +13,7 @@ import { RouterLink } from '@angular/router';
 export class Login {
 
   private http = inject(HttpClient);
-  private apiUrl = 'http://127.0.0.1:8000/api';
+  private apiUrl = 'http://localhost:3000/api';
 
   credentials = {
     username: '',

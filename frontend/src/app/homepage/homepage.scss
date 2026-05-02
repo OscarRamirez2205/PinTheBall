@@ -1,22 +1,4 @@
-$background-color1: #0D0221;
-$background-color2: #261447;
-$primary-color: #ff00fa;
-$secondary-color: #ffea1c;
-$text-color-1: #1bf9fb;
-$text-color-2: #15b2b4;
-
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-
-@font-face {
-  font-family: 'Retrowave';
-  src: url("../../assets/fonts/retrowave-qzr55.ttf") format("truetype");
-}
-
-body {
-  background-color: $background-color1;
-  color: $text-color-1;
-  font-family: 'Orbitron', sans-serif;
-}
+@use '../../styles/variables' as *;
 
 .title {
   display: inline-block;
@@ -55,43 +37,43 @@ body {
 }
 
 .play {
-    background: linear-gradient(135deg, $primary-color, $secondary-color);
-    border: none;
-    border-radius: 12px;
-    padding: 14px 40px;
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 8px 20px rgba($primary-color, 0.4);
-    transition: all 0.25s ease;
-    position: relative;
-    overflow: hidden;
-    text-decoration: none;
-
+  background: linear-gradient(135deg, $primary-color, $secondary-color);
+  border: none;
+  border-radius: 12px;
+  padding: 14px 40px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba($primary-color, 0.4);
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  margin-bottom: 20px;
 }
 
 .play::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
-    transition: all 0.5s;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: all 0.5s;
 }
 
 .play:hover::before {
-    left: 100%;
+  left: 100%;
 }
 
 .play:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 12px 25px rgba($secondary-color, 0.3);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 25px rgba($secondary-color, 0.3);
 }
 
 .play:active {
-    transform: scale(0.95);
-    box-shadow: 0 5px 10px rgba($primary-color, 0.3);
+  transform: scale(0.95);
+  box-shadow: 0 5px 10px rgba($primary-color, 0.3);
 }

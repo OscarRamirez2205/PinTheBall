@@ -1,19 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  <div class="login-container">
-  <div class="login-box">
+<div class="register-container">
+  <div class="register-box">
     <h1 class="title">Registrarse</h1>
 
     <form>
       <div class="input-group">
-        <label>Usuario</label>
-        <input type="text" placeholder="Introduce tu usuario" />
+        <label>Nombre de usuario</label>
+        <input type="text" placeholder="Introduce tu nombre de usuario" />
+      </div>
+
+      <div class="input-group">
+        <label>Email</label>
+        <input type="text" placeholder="Introduce tu email" />
       </div>
 
       <div class="input-group">
@@ -21,10 +18,14 @@
         <input type="password" placeholder="Introduce tu contraseña" />
       </div>
 
+      <div class="input-group">
+        <label>Confirmar Contraseña</label>
+        <input type="password" placeholder="Introduce tu contraseña de nuevo" />
+      </div>
+
       <button type="submit">REGISTRARSE</button>
+
+      <p class="footer">Has cambiado de opinión? <a routerLink="/">Volver al Homepage</a></p>
     </form>
   </div>
 </div>
-  
-</body>
-</html>

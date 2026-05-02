@@ -1,1 +1,53 @@
-<p>shop works!</p>
+<div class="shop">
+  @if (toast(); as t) {
+    <div class="shop__toast" [class.shop__toast--err]="t.kind === 'err'" role="status">
+      {{ t.text }}
+    </div>
+  }
+
+  <header class="shop__header">
+    <h1 class="shop__title">Tienda</h1>
+    <div class="shop__wallet" aria-live="polite">
+      <span class="shop__wallet-label">Monedas</span>
+      <span class="shop__wallet-amount">{{ wallet.coins() }}</span>
+      <span class="shop__wallet-icon" aria-hidden="true">🪙</span>
+    </div>
+  </header>
+
+  <section class="shop__featured" aria-labelledby="shop-offer-heading">
+    <div class="shop__offer">
+      <h2 id="shop-offer-heading" class="shop__offer-title">Oferta del día</h2>
+      <p class="shop__offer-hint">
+        Precio rebajado hasta la medianoche local. Misma ventana que la recompensa de la partida diaria.
+      </p>
+      <div class="shop__timer" role="timer" [attr.aria-label]="'Tiempo hasta renovación: ' + countdown()">
+        <span class="shop__timer-label">Termina en</span>
+        <span class="shop__timer-digits">{{ countdown() }}</span>
+      </div>
+      <div class="shop__featured-card">
+        <app-ball-card
+          [skin]="dailySkin()"
+          [dealPrice]="dailyDealPrice()"
+          [coins]="wallet.coins()"
+          [owned]="owned(dailySkin().id)"
+          (purchase)="onPurchase($event)"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="shop__catalog" aria-labelledby="shop-catalog-heading">
+    <h2 id="shop-catalog-heading" class="shop__catalog-title">Skins de bola</h2>
+    <div class="shop__grid">
+      @for (skin of catalog; track skin.id) {
+        <app-ball-card
+          [skin]="skin"
+          [dealPrice]="dealPriceFor(skin)"
+          [coins]="wallet.coins()"
+          [owned]="owned(skin.id)"
+          (purchase)="onPurchase($event)"
+        />
+      }
+    </div>
+  </section>
+</div>

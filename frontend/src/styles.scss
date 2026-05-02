@@ -1,0 +1,27 @@
+@use 'styles/variables' as *;
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+@font-face {
+  font-family: 'Retrowave';
+  src: url('./assets/fonts/retrowave-qzr55.ttf') format('truetype');
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  padding: 0;
+  background-color: $background-color1;
+  color: $text-color-1;
+  font-family: 'Orbitron', sans-serif;
+}

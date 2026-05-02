@@ -1,0 +1,27 @@
+<article class="ball-card" [class.ball-card--owned]="owned()">
+  <header class="ball-card__name">{{ skin().name }}</header>
+
+  <div
+    class="ball-card__ball"
+    role="img"
+    [attr.aria-label]="'Vista previa: ' + skin().name"
+    [style.--ball-preview]="skin().preview"
+  ></div>
+
+  <div class="ball-card__row">
+    @if (!owned()) {
+      @if (dealPrice() !== undefined && dealPrice()! < skin().price) {
+        <span class="ball-card__price ball-card__price--old">{{ skin().price }}</span>
+      }
+      @if (effectivePrice() > 0) {
+        <span class="ball-card__price">{{ effectivePrice() }} 🪙</span>
+      } @else {
+        <span class="ball-card__price ball-card__price--free">Gratis</span>
+      }
+    }
+  </div>
+
+  <button type="button" class="ball-card__buy" [disabled]="isDisabled()" (click)="onBuy()">
+    {{ label() }}
+  </button>
+</article>

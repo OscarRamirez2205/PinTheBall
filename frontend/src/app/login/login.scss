@@ -1,16 +1,4 @@
-$background-color1: #0D0221;
-$background-color2: #261447;
-$primary-color: #ff00fa;
-$secondary-color: #ffea1c;
-$text-color-1: #1bf9fb;
-$text-color-2: #15b2b4;
-
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-
-@font-face {
-  font-family: 'Retrowave';
-  src: url("../../assets/fonts/retrowave-qzr55.ttf") format("truetype");
-}
+@use '../../styles/variables' as *;
 
 :host {
   display: block;
@@ -30,7 +18,7 @@ $text-color-2: #15b2b4;
   background: rgba(13, 2, 33, 0.85);
   border: 2px solid $primary-color;
   padding: 40px;
-  width: 320px;
+  width: 420px;
   box-shadow: 0 0 25px $primary-color, 0 0 50px $secondary-color;
   text-align: center;
   border-radius: 10px;
@@ -41,7 +29,7 @@ $text-color-2: #15b2b4;
   color: $secondary-color;
   text-shadow: 0 0 10px $primary-color;
   margin-bottom: 30px;
-  letter-spacing: 3px;
+  letter-spacing: 5px;
 }
 
 .input-group {
