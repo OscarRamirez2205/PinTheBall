@@ -9,7 +9,6 @@ import type { ShopSkin } from '../shop-skin.model';
 })
 export class BallCard {
   skin = input.required<ShopSkin>();
-  /** Si se indica, sustituye al precio normal (oferta del día) */
   dealPrice = input<number | undefined>(undefined);
   coins = input.required<number>();
   owned = input.required<boolean>();
@@ -17,22 +16,22 @@ export class BallCard {
   purchase = output<{ skin: ShopSkin; price: number }>();
 
   readonly effectivePrice = computed(() => {
-    const deal = this.dealPrice();
-    return deal !== undefined ? deal : this.skin().price;
+    const oferta = this.dealPrice();
+    return oferta !== undefined ? oferta : this.skin().price;
   });
 
   readonly canBuy = computed(() => {
     if (this.owned()) return false;
-    const p = this.effectivePrice();
-    return p <= 0 || this.coins() >= p;
+    const precio = this.effectivePrice();
+    return precio <= 0 || this.coins() >= precio;
   });
 
   readonly isDisabled = computed(() => this.owned() || !this.canBuy());
 
   readonly label = computed(() => {
     if (this.owned()) return 'Desbloqueada';
-    const p = this.effectivePrice();
-    if (p <= 0) return 'Gratis';
+    const precio = this.effectivePrice();
+    if (precio <= 0) return 'Gratis';
     return 'Comprar';
   });
 

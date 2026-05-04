@@ -44,12 +44,10 @@ export class AuthService {
     this.sessionPresent.set(this.getToken() !== null);
   }
 
-  /** Hay sesión local (token en `localStorage`). Usado en plantillas con `auth.hasSession()`. */
   hasSession(): boolean {
     return this.sessionPresent();
   }
 
-  /** Misma base que `API_URL` (útil para depuración o otros servicios). */
   readonly apiBaseUrl = API_URL;
 
   login(email: string, password: string): Observable<LoginResponse> {
@@ -75,7 +73,6 @@ export class AuthService {
     );
   }
 
-  /** Borra token y usuario del `localStorage` y resetea estado en memoria. */
   logout(): void {
     this.clearToken();
   }

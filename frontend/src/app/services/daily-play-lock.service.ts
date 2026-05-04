@@ -16,7 +16,7 @@ export class DailyPlayLockService {
 
   hasCompletedDailyToday(): boolean {
     if (!isPlatformBrowser(this.platformId)) return false;
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored !== null && stored === localDateKey(new Date());
+    const fechaGuardada = localStorage.getItem(STORAGE_KEY);
+    return fechaGuardada !== null && fechaGuardada === localDateKey(new Date());
   }
 }

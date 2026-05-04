@@ -1,4 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Component, computed, inject, PLATFORM_ID, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -6,13 +7,8 @@ import { API_URL } from '../config/api-url';
 import { AuthService } from '../services/auth.service';
 import { SelectedBallService } from '../services/selected-ball.service';
 import { ballPreviewGradient } from '../shared/ball-preview';
-import {
-  currentPlayStreak,
-  gamesToDaySet,
-  lastNDaysPlayFlags,
-  longestPlayStreak,
-} from './profile.logic';
-/** Usuario mostrado en perfil (campos extra de `GET /users/:id`). */
+import {currentPlayStreak, gamesToDaySet, lastNDaysPlayFlags, longestPlayStreak,} from './profile.logic';/** Stats del usuario */
+
 export interface ProfileUser {
   id: number;
   name: string | null;
@@ -46,7 +42,9 @@ export interface ApiBall {
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
+
 export class Profile {
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
@@ -60,56 +58,44 @@ export class Profile {
   readonly games = signal<GameDto[]>([]);
   readonly balls = signal<ApiBall[]>([]);
 
-  /** Exponer selección en el componente para que el template reaccione al signal del servicio. */
   readonly selectedBallId = computed(() => this.selectedBallSvc.selectedBallId());
 
   readonly partidasJugadas = computed(() => this.games().length);
 
   readonly puntuacionMedia = computed(() => {
-    const g = this.games();
-    if (g.length === 0) return null;
-    const sum = g.reduce((a, x) => a + x.score, 0);
-    return Math.round((sum / g.length) * 10) / 10;
+    const partidas = this.games();
+    if (partidas.length === 0) return null;
+    const suma = partidas.reduce((acum, p) => acum + p.score, 0);
+    return Math.round((suma / partidas.length) * 10) / 10;
   });
 
   readonly rachaActual = computed(() => currentPlayStreak(gamesToDaySet(this.games())));
 
   readonly mayorRacha = computed(() => longestPlayStreak(gamesToDaySet(this.games())));
 
-  readonly calendarFlags = computed(() => lastNDaysPlayFlags(gamesToDaySet(this.games()), 21));
-
-  readonly initials = computed(() => {
-    const n = this.user()?.name?.trim() || this.user()?.email || '?';
-    const parts = n.split(/\s+/).filter(Boolean);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
-    }
-    const single = parts[0] ?? n;
-    if (/^[A-Za-z]{3}$/.test(single)) {
-      return single.toUpperCase();
-    }
-    return single.slice(0, 2).toUpperCase();
-  });
-
   constructor() {
-    const session = this.auth.getUser();
-    if (!session) {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const sesion = this.auth.getUser();
+    if (!sesion) {
       this.loading.set(false);
       void this.router.navigate(['/login']);
       return;
     }
-    this.user.set(session as ProfileUser);
+    this.user.set(sesion as ProfileUser);
 
     forkJoin({
-      profile: this.http.get<ProfileUser>(`${API_URL}/users/${session.id}`),
-      games: this.http.get<GameDto[]>(`${API_URL}/games/user/${session.id}`),
-      balls: this.http.get<ApiBall[]>(`${API_URL}/users/${session.id}/balls`),
+      profile: this.http.get<ProfileUser>(`${API_URL}/users/${sesion.id}`),
+      games: this.http.get<GameDto[]>(`${API_URL}/games/user/${sesion.id}`),
+      balls: this.http.get<ApiBall[]>(`${API_URL}/users/${sesion.id}/balls`),
     }).subscribe({
-      next: ({ profile, games, balls }) => {
-        this.auth.setUser(profile);
-        this.user.set(profile);
-        this.games.set(games);
-        this.balls.set(balls);
+      next: ({ profile: perfil, games: partidas, balls: bolas }) => {
+        this.auth.setUser(perfil);
+        this.user.set(perfil);
+        this.games.set(partidas);
+        this.balls.set(bolas);
         this.loading.set(false);
       },
       error: () => {
@@ -128,9 +114,7 @@ export class Profile {
   }
 
   onReminder(): void {
-    this.reminderNote.set(
-      'Recordatorio por email: función en desarrollo. Podrás activarlo cuando el backend envíe avisos.',
-    );
+    this.reminderNote.set('Aun no funciono crack, espabila que no llegas');
     setTimeout(() => this.reminderNote.set(null), 5000);
   }
 }

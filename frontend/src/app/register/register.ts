@@ -62,30 +62,30 @@ export class Register {
         }),
       );
       await this.router.navigateByUrl('/profile');
-    } catch (err: unknown) {
-      const msg = this.apiErrorMessage(err);
+    } catch (error: unknown) {
+      const texto = this.mensajeErrorApi(error);
       this.errorMessage.set(
-        msg ?? 'No se pudo completar el registro. Inténtalo de nuevo.',
+        texto ?? 'No se pudo completar el registro. Inténtalo de nuevo.',
       );
     } finally {
       this.submitting.set(false);
     }
   }
 
-  private apiErrorMessage(err: unknown): string | null {
-    const e = err as {
+  private mensajeErrorApi(error: unknown): string | null {
+    const errorHttp = error as {
       error?: { message?: string; errors?: Record<string, string[] | undefined> };
     };
-    const errors = e?.error?.errors;
-    if (errors) {
-      for (const key of Object.keys(errors)) {
-        const arr = errors[key];
-        if (Array.isArray(arr) && typeof arr[0] === 'string' && arr[0]) {
-          return arr[0];
+    const campos = errorHttp?.error?.errors;
+    if (campos) {
+      for (const clave of Object.keys(campos)) {
+        const lista = campos[clave];
+        if (Array.isArray(lista) && typeof lista[0] === 'string' && lista[0]) {
+          return lista[0];
         }
       }
     }
-    const m = e?.error?.message;
-    return typeof m === 'string' && m ? m : null;
+    const mensaje = errorHttp?.error?.message;
+    return typeof mensaje === 'string' && mensaje ? mensaje : null;
   }
 }

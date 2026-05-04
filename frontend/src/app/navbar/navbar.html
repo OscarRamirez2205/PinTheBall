@@ -4,13 +4,7 @@
     </div>
 
     <ul class="nav-links mt-2">
-        <li>
-            <a
-                routerLink="/"
-                routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: true }"
-                >Homepage</a>
-        </li>
+        <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" >Homepage</a></li>
         <li><a routerLink="/game" routerLinkActive="active">Jugar</a></li>
         <li><a routerLink="/shop" routerLinkActive="active">Tienda</a></li>
         @if (auth.hasSession()) {

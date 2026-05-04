@@ -4,7 +4,7 @@
   display: block;
 }
 
-:host-context(.shop__featured-card) {
+:host-context(.shop-featured-card) {
   display: flex;
   flex: 1 1 auto;
   width: 100%;
@@ -12,7 +12,7 @@
   min-height: 0;
 }
 
-:host-context(.shop__featured-card) .ball-card {
+:host-context(.shop-featured-card) .ball-card {
   flex: 1 1 auto;
   width: 100%;
   max-width: 100%;
@@ -20,7 +20,7 @@
   justify-content: space-between;
 }
 
-:host-context(.shop__featured-card) .ball-card__ball {
+:host-context(.shop-featured-card) .ball-card-ball {
   max-width: min(150px, 85%);
 }
 
@@ -46,7 +46,7 @@
   }
 }
 
-.ball-card__name {
+.ball-card-name {
   font-family: 'Orbitron', sans-serif;
   font-size: 0.68rem;
   font-weight: 700;
@@ -63,7 +63,7 @@
   line-height: 1.2;
 }
 
-.ball-card__ball {
+.ball-card-ball {
   --ball-preview: radial-gradient(circle at 32% 28%, #fff 0%, #ff00fa 35%, #0d0221 85%);
   aspect-ratio: 1;
   width: 100%;
@@ -78,7 +78,7 @@
   border: 2px solid rgba($text-color-1, 0.25);
 }
 
-.ball-card__row {
+.ball-card-row {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,25 +88,25 @@
   margin-bottom: 0.65rem;
 }
 
-.ball-card__price {
+.ball-card-price {
   font-family: 'Orbitron', sans-serif;
   font-size: 0.78rem;
   color: $text-color-1;
   letter-spacing: 0.06em;
 }
 
-.ball-card__price--old {
+.ball-card-price--old {
   text-decoration: line-through;
   opacity: 0.5;
   font-size: 0.68rem;
 }
 
-.ball-card__price--free {
+.ball-card-price--free {
   color: $secondary-color;
   font-weight: 700;
 }
 
-.ball-card__buy {
+.ball-card-buy {
   font-family: 'Orbitron', sans-serif;
   width: 100%;
   padding: 0.55rem 0.5rem;

@@ -1,34 +1,33 @@
 <div class="profile-page">
   @if (loading()) {
-    <p class="profile-page__loading">Cargando perfil…</p>
+    <p class="profile-page-loading">Cargando perfil…</p>
+
   } @else if (loadError(); as err) {
-    <p class="profile-page__error">{{ err }}</p>
+    <p class="profile-page-error">{{ err }}</p>
+
   } @else if (user(); as u) {
     @if (u.role === 'admin') {
       <aside class="profile-admin" aria-label="Panel administrador">
-        <span class="profile-admin__badge">Admin</span>
-        <p class="profile-admin__text">Vista extendida para administradores.</p>
-        <a routerLink="/shop" class="profile-admin__link">Ir a la tienda</a>
+        <span class="profile-admin-badge">Admin</span>
+        <p class="profile-admin-text">Vista extendida para administradores.</p>
+        <a routerLink="/shop" class="profile-admin-link">Ir a la tienda</a>
       </aside>
     }
 
     <header class="profile-header">
-      <div class="profile-header__avatar" [attr.aria-label]="'Avatar de ' + (u.name || u.email)">
-        {{ initials() }}
-      </div>
-      <div class="profile-header__meta">
+      <div class="profile-header-meta">
         <div class="profile-field">
-          <span class="profile-field__label">Nombre</span>
-          <span class="profile-field__value">{{ u.name || '—' }}</span>
+          <span class="profile-field-label">Nombre</span>
+          <span class="profile-field-value">{{ u.name || '—' }}</span>
         </div>
         <div class="profile-field">
-          <span class="profile-field__label">Email</span>
-          <span class="profile-field__value">{{ u.email }}</span>
+          <span class="profile-field-label">Email</span>
+          <span class="profile-field-value">{{ u.email }}</span>
         </div>
         @if (u.wallet !== undefined && u.wallet !== null) {
           <div class="profile-field profile-field--compact">
-            <span class="profile-field__label">Monedas</span>
-            <span class="profile-field__value">{{ u.wallet }} 🪙</span>
+            <span class="profile-field-label">Monedas</span>
+            <span class="profile-field-value">{{ u.wallet }} 🪙</span>
           </div>
         }
       </div>
@@ -36,48 +35,37 @@
 
     <div class="profile-grid">
       <section class="profile-panel profile-panel--stats" aria-labelledby="stats-title">
-        <h2 id="stats-title" class="profile-panel__title">Estadísticas</h2>
+        <h2 id="stats-title" class="profile-panel-title">Estadísticas</h2>
         <dl class="profile-stats">
-          <div class="profile-stats__row">
+          <div class="profile-stats-row">
             <dt>Partidas jugadas</dt>
             <dd>{{ partidasJugadas() }}</dd>
           </div>
-          <div class="profile-stats__row">
+          <div class="profile-stats-row">
             <dt>Puntuación media</dt>
             <dd>
               @if (puntuacionMedia() !== null) {
                 {{ puntuacionMedia() }}
+                
               } @else {
                 —
               }
             </dd>
           </div>
-          <div class="profile-stats__row">
+          <div class="profile-stats-row">
             <dt>Racha actual (días)</dt>
             <dd>{{ rachaActual() }}</dd>
           </div>
-          <div class="profile-stats__row">
+          <div class="profile-stats-row">
             <dt>Mayor racha de días jugados</dt>
             <dd>{{ mayorRacha() }}</dd>
           </div>
         </dl>
-        <div class="profile-cal" aria-label="Últimos 21 días con partida">
-          <span class="profile-cal__caption">Actividad reciente</span>
-          <div class="profile-cal__grid">
-            @for (played of calendarFlags(); track $index) {
-              <span
-                class="profile-cal__cell"
-                [class.profile-cal__cell--on]="played"
-                [attr.title]="played ? 'Hubo partida' : 'Sin partida'"
-              ></span>
-            }
-          </div>
-        </div>
       </section>
 
       <section class="profile-panel profile-panel--inventory" aria-labelledby="inv-title">
-        <h2 id="inv-title" class="profile-panel__title">Inventario</h2>
-        <p class="profile-panel__hint">
+        <h2 id="inv-title" class="profile-panel-title">Inventario</h2>
+        <p class="profile-panel-hint">
           Bolas desbloqueadas. Pulsa una para usarla como skin en el juego.
         </p>
         <div class="profile-inventory">
@@ -88,17 +76,17 @@
               [class.profile-ball--selected]="selectedBallId() === ball.id"
               (click)="selectBall(ball.id)"
             >
-              <span class="profile-ball__name">{{ ball.name }}</span>
+              <span class="profile-ball-name">{{ ball.name }}</span>
               @if (ball.subname) {
-                <span class="profile-ball__sub">{{ ball.subname }}</span>
+                <span class="profile-ball-sub">{{ ball.subname }}</span>
               }
               <span
-                class="profile-ball__preview"
+                class="profile-ball-preview"
                 role="img"
                 [attr.aria-label]="'Vista previa: ' + ball.name"
                 [style.--ball-preview]="gradientFor(ball.id)"
               ></span>
-              <span class="profile-ball__cta">
+              <span class="profile-ball-cta">
                 @if (selectedBallId() === ball.id) {
                   Skin activa
                 } @else {
@@ -107,8 +95,8 @@
               </span>
             </button>
           } @empty {
-            <p class="profile-inventory__empty">Aún no tienes bolas. Visita la tienda para desbloquear skins.</p>
-            <a routerLink="/shop" class="profile-inventory__shop-link">Ir a la tienda</a>
+            <p class="profile-inventory-empty">Aún no tienes bolas. Visita la tienda para desbloquear skins.</p>
+            <a routerLink="/shop" class="profile-inventory-shop-link">Ir a la tienda</a>
           }
         </div>
       </section>
@@ -119,7 +107,7 @@
         Recordatorio por email cuando pueda jugar la siguiente partida
       </button>
       @if (reminderNote(); as note) {
-        <p class="profile-reminder__note">{{ note }}</p>
+        <p class="profile-reminder-note">{{ note }}</p>
       }
     </div>
   }

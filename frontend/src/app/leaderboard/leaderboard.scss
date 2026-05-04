@@ -7,11 +7,11 @@
   padding: 1rem 1.25rem 2.75rem;
 }
 
-.leaderboard__header {
+.leaderboard-header {
   margin-bottom: 1.5rem;
 }
 
-.leaderboard__title {
+.leaderboard-title {
   margin: 0;
   padding: 0.4rem 1.4rem;
   display: inline-block;
@@ -27,7 +27,7 @@
   text-shadow: 0 0 12px rgba($primary-color, 0.45);
 }
 
-.leaderboard__countdown {
+.leaderboard-countdown {
   margin-bottom: 1.75rem;
   padding: 1.35rem 1.35rem 1.5rem;
   border-radius: 18px;
@@ -39,7 +39,7 @@
   text-align: center;
 }
 
-.leaderboard__countdown-heading {
+.leaderboard-countdown-heading {
   margin: 0 0 0.65rem;
   font-family: 'Orbitron', sans-serif;
   font-size: clamp(0.72rem, 2vw, 0.92rem);
@@ -51,7 +51,7 @@
   text-shadow: 0 0 14px rgba($secondary-color, 0.35);
 }
 
-.leaderboard__countdown-hint {
+.leaderboard-countdown-hint {
   margin: 0 auto 1.15rem;
   max-width: 40rem;
   font-size: clamp(0.68rem, 1.8vw, 0.8rem);
@@ -60,7 +60,7 @@
   color: $text-color-2;
 }
 
-.leaderboard__timer {
+.leaderboard-timer {
   box-sizing: border-box;
   margin: 0 auto;
   max-width: min(100%, 520px);
@@ -75,7 +75,7 @@
   border: 1px solid rgba($primary-color, 0.38);
 }
 
-.leaderboard__timer-label {
+.leaderboard-timer-label {
   flex-shrink: 0;
   font-size: clamp(0.76rem, 2vw, 0.88rem);
   letter-spacing: 0.2em;
@@ -84,7 +84,7 @@
   text-align: center;
 }
 
-.leaderboard__timer-digits {
+.leaderboard-timer-digits {
   font-family: 'Orbitron', monospace;
   font-size: clamp(2rem, 5vw + 1rem, 3.35rem);
   font-weight: 700;
@@ -95,7 +95,7 @@
   text-align: center;
 }
 
-.leaderboard__boards {
+.leaderboard-boards {
   display: grid;
   gap: 1.25rem;
 
@@ -106,7 +106,7 @@
   }
 }
 
-.leaderboard__panel {
+.leaderboard-panel {
   min-width: 0;
   padding: 1rem 1rem 1.15rem;
   border-radius: 14px;
@@ -115,7 +115,7 @@
   box-shadow: inset 0 0 28px rgba($primary-color, 0.05);
 }
 
-.leaderboard__panel-title {
+.leaderboard-panel-title {
   margin: 0 0 1rem;
   padding-bottom: 0.65rem;
   border-bottom: 1px solid rgba($primary-color, 0.28);
@@ -128,7 +128,7 @@
   text-align: center;
 }
 
-.leaderboard__panel-meta {
+.leaderboard-panel-meta {
   margin: -0.35rem 0 1rem;
   font-size: clamp(0.62rem, 1.65vw, 0.74rem);
   line-height: 1.45;
@@ -142,7 +142,7 @@
   }
 }
 
-.leaderboard__gap {
+.leaderboard-gap {
   margin: 0;
   padding: 0.4rem 0.25rem;
   list-style: none;
@@ -153,13 +153,13 @@
   user-select: none;
 }
 
-.leaderboard__list {
+.leaderboard-list {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.leaderboard__row {
+.leaderboard-row {
   display: grid;
   grid-template-columns: minmax(2.75rem, max-content) minmax(0, 1fr) auto;
   gap: 0.65rem;
@@ -169,7 +169,7 @@
   font-size: clamp(0.72rem, 1.9vw, 0.84rem);
   letter-spacing: 0.04em;
 
-  &:nth-child(even of .leaderboard__row) {
+  &:nth-child(even of .leaderboard-row) {
     background: rgba($background-color1, 0.35);
   }
 
@@ -178,21 +178,21 @@
     background: rgba($secondary-color, 0.08);
     box-shadow: 0 0 14px rgba($secondary-color, 0.12);
 
-    .leaderboard__name {
+    .leaderboard-name {
       color: $secondary-color;
       font-weight: 700;
     }
   }
 }
 
-.leaderboard__rank {
+.leaderboard-rank {
   font-family: 'Orbitron', monospace;
   font-weight: 700;
   color: $text-color-2;
   text-align: center;
 }
 
-.leaderboard__name {
+.leaderboard-name {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -200,7 +200,7 @@
   color: rgba($text-color-1, 0.92);
 }
 
-.leaderboard__score {
+.leaderboard-score {
   font-family: 'Orbitron', monospace;
   font-weight: 700;
   font-variant-numeric: tabular-nums;

@@ -11,14 +11,14 @@
   font-family: 'Orbitron', sans-serif;
 }
 
-.profile-page__loading,
-.profile-page__error {
+.profile-page-loading,
+.profile-page-error {
   text-align: center;
   color: $text-color-1;
   padding: 2rem;
 }
 
-.profile-page__error {
+.profile-page-error {
   color: #ff8a9d;
 }
 
@@ -36,7 +36,7 @@
   box-shadow: 0 0 20px rgba($secondary-color, 0.12);
 }
 
-.profile-admin__badge {
+.profile-admin-badge {
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -47,7 +47,7 @@
   color: #0a0516;
 }
 
-.profile-admin__text {
+.profile-admin-text {
   flex: 1 1 160px;
   margin: 0;
   font-size: 0.72rem;
@@ -55,7 +55,7 @@
   letter-spacing: 0.06em;
 }
 
-.profile-admin__link {
+.profile-admin-link {
   font-size: 0.7rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -78,7 +78,7 @@
   flex-wrap: wrap;
 }
 
-.profile-header__avatar {
+.profile-header-avatar {
   flex-shrink: 0;
   width: 96px;
   height: 96px;
@@ -96,7 +96,7 @@
     0 0 28px rgba($primary-color, 0.45);
 }
 
-.profile-header__meta {
+.profile-header-meta {
   flex: 1 1 240px;
   display: flex;
   flex-direction: column;
@@ -115,7 +115,7 @@
   }
 }
 
-.profile-field__label {
+.profile-field-label {
   display: block;
   font-size: 0.6rem;
   letter-spacing: 0.22em;
@@ -124,7 +124,7 @@
   margin-bottom: 0.35rem;
 }
 
-.profile-field__value {
+.profile-field-value {
   font-size: 0.88rem;
   color: $text-color-1;
   word-break: break-word;
@@ -152,7 +152,7 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 
-.profile-panel__title {
+.profile-panel-title {
   font-family: 'Retrowave', 'Orbitron', sans-serif;
   font-size: 1.05rem;
   letter-spacing: 0.14em;
@@ -162,7 +162,7 @@
   margin: 0 0 1rem;
 }
 
-.profile-panel__hint {
+.profile-panel-hint {
   margin: -0.35rem 0 1rem;
   font-size: 0.68rem;
   line-height: 1.45;
@@ -178,7 +178,7 @@
   gap: 0.75rem;
 }
 
-.profile-stats__row {
+.profile-stats-row {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -211,7 +211,7 @@
   margin-top: 1.25rem;
 }
 
-.profile-cal__caption {
+.profile-cal-caption {
   display: block;
   font-size: 0.62rem;
   letter-spacing: 0.18em;
@@ -220,13 +220,13 @@
   margin-bottom: 0.55rem;
 }
 
-.profile-cal__grid {
+.profile-cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 5px;
 }
 
-.profile-cal__cell {
+.profile-cal-cell {
   aspect-ratio: 1;
   max-height: 22px;
   border-radius: 4px;
@@ -253,7 +253,7 @@
   }
 }
 
-.profile-inventory__empty {
+.profile-inventory-empty {
   grid-column: 1 / -1;
   font-size: 0.78rem;
   color: $text-color-2;
@@ -261,7 +261,7 @@
   letter-spacing: 0.04em;
 }
 
-.profile-inventory__shop-link {
+.profile-inventory-shop-link {
   grid-column: 1 / -1;
   font-size: 0.72rem;
   letter-spacing: 0.12em;
@@ -298,7 +298,7 @@
   }
 }
 
-.profile-ball__name {
+.profile-ball-name {
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -311,14 +311,14 @@
   justify-content: center;
 }
 
-.profile-ball__sub {
+.profile-ball-sub {
   font-size: 0.55rem;
   color: $text-color-2;
   letter-spacing: 0.06em;
   margin-bottom: 0.45rem;
 }
 
-.profile-ball__preview {
+.profile-ball-preview {
   --ball-preview: radial-gradient(circle at 32% 28%, #fff 0%, #ff00fa 35%, #0d0221 85%);
   aspect-ratio: 1;
   width: 100%;
@@ -332,7 +332,7 @@
   border: 2px solid rgba($text-color-1, 0.25);
 }
 
-.profile-ball__cta {
+.profile-ball-cta {
   font-size: 0.55rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -366,7 +366,7 @@
   }
 }
 
-.profile-reminder__note {
+.profile-reminder-note {
   margin: 0.65rem 0 0;
   font-size: 0.68rem;
   color: $text-color-2;

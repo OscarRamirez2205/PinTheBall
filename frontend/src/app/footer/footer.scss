@@ -14,7 +14,7 @@
   box-shadow: 0 -4px 24px rgba($secondary-color, 0.15);
 }
 
-.footer__glow-line {
+.footer-glow-line {
   height: 1px;
   margin: 0;
   background: linear-gradient(
@@ -28,7 +28,7 @@
   opacity: 0.85;
 }
 
-.footer__inner {
+.footer-inner {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
@@ -44,7 +44,7 @@
   }
 }
 
-.footer__brand {
+.footer-brand {
   text-align: center;
 
   @media (min-width: 768px) {
@@ -52,7 +52,7 @@
   }
 }
 
-.footer__logo {
+.footer-logo {
   display: inline-block;
   font-family: 'Retrowave', 'Orbitron', sans-serif;
   font-size: clamp(1.5rem, 4vw, 2rem);
@@ -67,7 +67,7 @@
   filter: drop-shadow(0 0 12px rgba($primary-color, 0.45));
 }
 
-.footer__tagline {
+.footer-tagline {
   margin: 0.75rem 0 0;
   font-size: 0.8rem;
   font-weight: 400;
@@ -82,7 +82,7 @@
   }
 }
 
-.footer__nav {
+.footer-nav {
   text-align: center;
 
   @media (min-width: 768px) {
@@ -90,7 +90,7 @@
   }
 }
 
-.footer__heading {
+.footer-heading {
   margin: 0 0 1rem;
   font-size: 0.7rem;
   font-weight: 700;
@@ -100,7 +100,7 @@
   text-shadow: 0 0 12px rgba($secondary-color, 0.35);
 }
 
-.footer__links {
+.footer-links {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -143,7 +143,7 @@
   }
 }
 
-.footer__support {
+.footer-support {
   text-align: center;
 
   @media (min-width: 768px) {
@@ -151,7 +151,7 @@
   }
 }
 
-.footer__support-text {
+.footer-support-text {
   margin: 0 0 1.25rem;
   font-size: 0.8rem;
   line-height: 1.55;
@@ -159,7 +159,7 @@
   letter-spacing: 0.04em;
 }
 
-.footer__cta {
+.footer-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -187,7 +187,7 @@
   }
 }
 
-.footer__bottom {
+.footer-bottom {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
@@ -203,13 +203,13 @@
   }
 }
 
-.footer__copy {
+.footer-copy {
   font-size: 0.7rem;
   letter-spacing: 0.12em;
   color: rgba($text-color-1, 0.65);
 }
 
-.footer__hint {
+.footer-hint {
   font-size: 0.65rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;

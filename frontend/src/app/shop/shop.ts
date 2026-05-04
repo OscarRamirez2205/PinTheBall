@@ -43,18 +43,18 @@ export class Shop {
   readonly toast = signal<{ kind: 'ok' | 'err'; text: string } | null>(null);
 
   readonly catalog = computed<ShopSkin[]>(() =>
-    this.apiBalls().map((b) => ({
-      id: String(b.id),
-      name: b.name,
-      price: b.price,
-      preview: ballPreviewGradient(b.id),
+    this.apiBalls().map((fila) => ({
+      id: String(fila.id),
+      name: fila.name,
+      price: fila.price,
+      preview: ballPreviewGradient(fila.id),
     })),
   );
 
   readonly sortedBallIds = computed(() =>
     [...this.apiBalls()]
-      .sort((a, b) => a.id - b.id)
-      .map((b) => b.id),
+      .sort((bolaA, bolaB) => bolaA.id - bolaB.id)
+      .map((bola) => bola.id),
   );
 
   readonly dailyFeaturedId = computed(() => featuredBallId(this.sortedBallIds()));
@@ -62,48 +62,49 @@ export class Shop {
   readonly dailySkin = computed(() => {
     const id = this.dailyFeaturedId();
     if (id === null) return null;
-    return this.catalog().find((s) => Number(s.id) === id) ?? null;
+    return this.catalog().find((entrada) => Number(entrada.id) === id) ?? null;
   });
 
   readonly dailyDealPrice = computed(() => {
     const id = this.dailyFeaturedId();
     if (id === null) return undefined;
-    const ball = this.apiBalls().find((b) => b.id === id);
-    if (!ball) return undefined;
-    if (ball.deal_price != null && ball.deal_price < ball.price) {
-      return ball.deal_price;
+    const bola = this.apiBalls().find((b) => b.id === id);
+    if (!bola) return undefined;
+    if (bola.deal_price != null && bola.deal_price < bola.price) {
+      return bola.deal_price;
     }
-    if (ball.price > 0) {
-      return fallbackDealPrice(ball.price);
+    if (bola.price > 0) {
+      return fallbackDealPrice(bola.price);
     }
     return undefined;
   });
 
   constructor() {
-    const tick = () => this.countdown.set(formatCountdownHms(msUntilLocalMidnight()));
-    tick();
-    interval(1000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(tick);
+    const actualizarCuentaAtras = () =>
+      this.countdown.set(formatCountdownHms(msUntilLocalMidnight()));
+    actualizarCuentaAtras();
+    interval(1000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(actualizarCuentaAtras);
 
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
 
-    const session = this.auth.getUser();
-    if (!session) {
+    const sesion = this.auth.getUser();
+    if (!sesion) {
       void this.router.navigate(['/login'], { queryParams: { returnUrl: '/shop' } });
       return;
     }
 
     forkJoin({
       balls: this.http.get<ApiBallRow[]>(`${API_URL}/balls`),
-      owned: this.http.get<ApiBallRow[]>(`${API_URL}/users/${session.id}/balls`),
-      profile: this.http.get<AuthUser>(`${API_URL}/users/${session.id}`),
+      owned: this.http.get<ApiBallRow[]>(`${API_URL}/users/${sesion.id}/balls`),
+      profile: this.http.get<AuthUser>(`${API_URL}/users/${sesion.id}`),
     }).subscribe({
-      next: ({ balls, owned, profile }) => {
-        this.auth.setUser(profile);
-        this.apiBalls.set([...balls].sort((a, b) => a.id - b.id));
-        const ownedIds = owned.map((b) => b.id);
-        this.wallet.hydrate(profile.wallet ?? 0, ownedIds);
+      next: ({ balls: bolasApi, owned: poseidas, profile: perfil }) => {
+        this.auth.setUser(perfil);
+        this.apiBalls.set([...bolasApi].sort((bolaA, bolaB) => bolaA.id - bolaB.id));
+        const idsPoseidos = poseidas.map((bola) => bola.id);
+        this.wallet.hydrate(perfil.wallet ?? 0, idsPoseidos);
       },
       error: () => {
         this.loadError.set('No se pudo cargar la tienda. Comprueba la API.');
@@ -146,15 +147,15 @@ export class Shop {
           this.wallet.applyServerPurchase(res.user.wallet ?? 0, ballId);
           this.flash('ok', res.message || `¡${event.skin.name} desbloqueada!`);
         },
-        error: (err: { error?: { message?: string } }) => {
-          const msg = err?.error?.message;
-          this.flash('err', typeof msg === 'string' ? msg : 'No se pudo completar la compra.');
+        error: (errorHttp: { error?: { message?: string } }) => {
+          const texto = errorHttp?.error?.message;
+          this.flash('err', typeof texto === 'string' ? texto : 'No se pudo completar la compra.');
         },
       });
   }
 
-  private flash(kind: 'ok' | 'err', text: string): void {
-    this.toast.set({ kind, text });
+  private flash(tipo: 'ok' | 'err', texto: string): void {
+    this.toast.set({ kind: tipo, text: texto });
     setTimeout(() => this.toast.set(null), 3200);
   }
 }

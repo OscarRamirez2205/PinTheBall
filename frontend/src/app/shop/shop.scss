@@ -1,7 +1,7 @@
 @use 'sass:color';
 @use '../../styles/variables' as *;
 
-.shop__error {
+.shop-error {
   padding: 1rem;
   margin-bottom: 1rem;
   border-radius: 12px;
@@ -12,7 +12,7 @@
   letter-spacing: 0.05em;
 }
 
-.shop__empty-featured {
+.shop-empty-featured {
   margin: 0;
   padding: 1.5rem;
   text-align: center;
@@ -27,7 +27,7 @@
   margin: 0 auto;
 }
 
-.shop__toast {
+.shop-toast {
   position: fixed;
   bottom: 1.25rem;
   left: 50%;
@@ -57,7 +57,7 @@
   }
 }
 
-.shop__header {
+.shop-header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -66,7 +66,7 @@
   margin-bottom: 1.75rem;
 }
 
-.shop__title {
+.shop-title {
   margin: 0;
   padding: 0.4rem 1.4rem;
   border-radius: 999px;
@@ -81,7 +81,7 @@
   text-shadow: 0 0 12px rgba($primary-color, 0.5);
 }
 
-.shop__wallet {
+.shop-wallet {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -92,7 +92,7 @@
   box-shadow: 0 0 18px rgba($secondary-color, 0.15);
 }
 
-.shop__wallet-label {
+.shop-wallet-label {
   font-family: 'Orbitron', sans-serif;
   font-size: 0.6rem;
   letter-spacing: 0.22em;
@@ -100,7 +100,7 @@
   color: $text-color-2;
 }
 
-.shop__wallet-amount {
+.shop-wallet-amount {
   font-family: 'Orbitron', sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
@@ -109,16 +109,16 @@
   text-shadow: 0 0 10px rgba($secondary-color, 0.5);
 }
 
-.shop__wallet-icon {
+.shop-wallet-icon {
   font-size: 1.2rem;
   line-height: 1;
 }
 
-.shop__featured {
+.shop-featured {
   margin-bottom: 2.25rem;
 }
 
-.shop__offer {
+.shop-offer {
   display: grid;
   gap: 1rem 1.25rem;
   padding: 1.35rem 1.25rem;
@@ -135,7 +135,7 @@
   }
 }
 
-.shop__offer-title {
+.shop-offer-title {
   margin: 0;
   font-family: 'Orbitron', sans-serif;
   font-size: clamp(1.12rem, 3.2vw, 1.52rem);
@@ -151,7 +151,7 @@
   }
 }
 
-.shop__offer-hint {
+.shop-offer-hint {
   margin: 0;
   font-family: 'Orbitron', sans-serif;
   font-size: 0.78rem;
@@ -166,7 +166,7 @@
   }
 }
 
-.shop__timer {
+.shop-timer {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -190,7 +190,7 @@
   }
 }
 
-.shop__timer-label {
+.shop-timer-label {
   flex-shrink: 0;
   font-size: clamp(0.78rem, 2.2vw, 0.92rem);
   letter-spacing: 0.18em;
@@ -199,7 +199,7 @@
   text-align: center;
 }
 
-.shop__timer-digits {
+.shop-timer-digits {
   flex: 1 1 auto;
   display: flex;
   align-items: center;
@@ -215,7 +215,7 @@
   text-shadow: 0 0 14px rgba($text-color-1, 0.45);
 }
 
-.shop__featured-card {
+.shop-featured-card {
   box-sizing: border-box;
   min-width: 0;
   min-height: 0;
@@ -246,7 +246,7 @@
   }
 }
 
-.shop__catalog-title {
+.shop-catalog-title {
   margin: 0 0 1rem;
   font-family: 'Orbitron', sans-serif;
   font-size: 0.72rem;
@@ -257,7 +257,7 @@
   opacity: 0.9;
 }
 
-.shop__grid {
+.shop-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;

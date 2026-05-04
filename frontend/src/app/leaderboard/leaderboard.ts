@@ -31,7 +31,6 @@ export class Leaderboard {
 
   readonly countdown = signal('--:--:--');
 
-  /** Semana natural local: lunes → domingo (solo texto; datos demo). */
   readonly weekRangeLabel = signal(formatWeekRangeEs(startOfWeekMondayLocal()));
 
   readonly weeklyItems: LeaderboardListItem[] = buildTopNPlusOverflow(
@@ -45,7 +44,7 @@ export class Leaderboard {
   );
 
   constructor() {
-    const tick = () => {
+    const actualizar = () => {
       if (!this.dailyLock.hasCompletedDailyToday()) {
         void this.router.navigate(['/game']);
         return;
@@ -53,15 +52,16 @@ export class Leaderboard {
       this.countdown.set(formatCountdownHms(msUntilLocalMidnight()));
       this.weekRangeLabel.set(formatWeekRangeEs(startOfWeekMondayLocal()));
     };
-    tick();
-    interval(1000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(tick);
+
+    actualizar();
+    interval(1000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(actualizar);
   }
 
-  trackWeekly(i: number, item: LeaderboardListItem): string {
-    return item.kind === 'gap' ? `w-gap-${i}` : `w-${item.row.rank}-${item.row.score}`;
+  trackWeekly(indice: number, item: LeaderboardListItem): string {
+    return item.kind === 'gap' ? `w-gap-${indice}` : `w-${item.row.rank}-${item.row.score}`;
   }
 
-  trackGeneral(i: number, item: LeaderboardListItem): string {
-    return item.kind === 'gap' ? `g-gap-${i}` : `g-${item.row.rank}-${item.row.score}`;
+  trackGeneral(indice: number, item: LeaderboardListItem): string {
+    return item.kind === 'gap' ? `g-gap-${indice}` : `g-${item.row.rank}-${item.row.score}`;
   }
 }

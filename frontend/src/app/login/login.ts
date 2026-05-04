@@ -26,23 +26,25 @@ export class Login {
 
   async iniciarSesion(): Promise<void> {
     this.errorMessage.set('');
+    
     try {
       await firstValueFrom(
         this.authService.login(this.credentials.email.trim(), this.credentials.password),
       );
-      const raw = this.route.snapshot.queryParamMap.get('returnUrl');
-      const returnUrl =
-        raw && raw.startsWith('/') && !raw.startsWith('//') ? raw : '/profile';
-      await this.router.navigateByUrl(returnUrl);
-    } catch (err: unknown) {
-      const httpErr = err as { error?: { message?: string; errors?: { email?: string[] } } };
-      const fromField = httpErr?.error?.errors?.email?.[0];
-      const fromMessage = httpErr?.error?.message;
-      const msg =
-        (typeof fromField === 'string' && fromField) ||
-        (typeof fromMessage === 'string' && fromMessage) ||
+      const paramUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+      const urlVolver =
+        paramUrl && paramUrl.startsWith('/') && !paramUrl.startsWith('//') ? paramUrl : '/profile';
+      await this.router.navigateByUrl(urlVolver);
+
+    } catch (error: unknown) {
+      const errorHttp = error as { error?: { message?: string; errors?: { email?: string[] } } };
+      const campoEmail = errorHttp?.error?.errors?.email?.[0];
+      const mensajeServidor = errorHttp?.error?.message;
+      const texto =
+        (typeof campoEmail === 'string' && campoEmail) ||
+        (typeof mensajeServidor === 'string' && mensajeServidor) ||
         'Error al iniciar sesión. Por favor, intente nuevamente.';
-      this.errorMessage.set(msg);
+      this.errorMessage.set(texto);
     }
   }
 }

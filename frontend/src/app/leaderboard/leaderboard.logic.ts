@@ -13,10 +13,10 @@ export type LeaderboardListItem =
  * Ordena por puntuación descendente y asigna rank 1..n.
  */
 export function assignRanks(rows: LeaderboardRow[]): LeaderboardRow[] {
-  const sorted = [...rows].sort((a, b) => b.score - a.score);
-  return sorted.map((row, index) => ({
+  const ordenadas = [...rows].sort((a, b) => b.score - a.score);
+  return ordenadas.map((row, indice) => ({
     ...row,
-    rank: index + 1,
+    rank: indice + 1,
   }));
 }
 
@@ -24,41 +24,41 @@ export function assignRanks(rows: LeaderboardRow[]): LeaderboardRow[] {
  * Top `topN` y, si el jugador marcado con `isYou` no está entre ellos, un hueco y su fila con rango real.
  */
 export function buildTopNPlusOverflow(rankedRows: LeaderboardRow[], topN = 10): LeaderboardListItem[] {
-  const top = rankedRows.filter((r) => r.rank <= topN);
-  const you = rankedRows.find((r) => r.isYou);
+  const primeras = rankedRows.filter((row) => row.rank <= topN);
+  const tuFila = rankedRows.find((row) => row.isYou);
 
-  const items: LeaderboardListItem[] = top.map((row) => ({ kind: 'row', row }));
+  const lista: LeaderboardListItem[] = primeras.map((row) => ({ kind: 'row', row }));
 
-  if (you && you.rank > topN) {
-    items.push({
+  if (tuFila && tuFila.rank > topN) {
+    lista.push({
       kind: 'gap',
       ariaLabel: 'Posiciones entre el top y tu clasificación',
     });
-    items.push({ kind: 'row', row: you });
+    lista.push({ kind: 'row', row: tuFila });
   }
 
-  return items;
+  return lista;
 }
 
-/** Demo: suficientes jugadores ficticios para que «Tú» quede en `youRank` (≥1). */
+/** Demo: jugadores ficticios para para comprobar estilos y funcionalidades */
 export function mockPoolYouAtRank(youRank: number, namePrefix: string): LeaderboardRow[] {
-  const n = Math.max(youRank, 10);
-  const rows: LeaderboardRow[] = [];
-  for (let i = 1; i <= n; i++) {
-    if (i === youRank) {
-      rows.push({
+  const cantidad = Math.max(youRank, 10);
+  const filas: LeaderboardRow[] = [];
+  for (let indice = 1; indice <= cantidad; indice++) {
+    if (indice === youRank) {
+      filas.push({
         rank: 0,
         playerName: 'Tú',
-        score: 1_000_000 - i * 100 - 5_000,
+        score: 1_000_000 - indice * 100 - 5_000,
         isYou: true,
       });
       continue;
     }
-    rows.push({
+    filas.push({
       rank: 0,
-      playerName: `${namePrefix}_${i}`,
-      score: 1_000_000 - i * 100,
+      playerName: `${namePrefix}_${indice}`,
+      score: 1_000_000 - indice * 100,
     });
   }
-  return assignRanks(rows);
+  return assignRanks(filas);
 }

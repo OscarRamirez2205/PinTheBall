@@ -1,9 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 
-/**
- * Monedero e inventario de bolas alineados con la API (tienda / perfil).
- */
 @Injectable({ providedIn: 'root' })
+
 export class ShopWalletService {
   private readonly _coins = signal(0);
   private readonly _ownedBallIds = signal<Set<number>>(new Set());
@@ -28,7 +26,6 @@ export class ShopWalletService {
     return this._ownedBallIds().has(n);
   }
 
-  /** Tras compra exitosa (respuesta del servidor). */
   applyServerPurchase(userWallet: number, ballId: number): void {
     this._coins.set(Math.max(0, userWallet));
     this._ownedBallIds.update((s) => new Set(s).add(ballId));

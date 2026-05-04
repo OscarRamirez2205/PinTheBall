@@ -1,34 +1,34 @@
 <div class="shop">
   @if (loadError(); as err) {
-    <p class="shop__error" role="alert">{{ err }}</p>
+    <p class="shop-error" role="alert">{{ err }}</p>
   }
 
   @if (toast(); as t) {
-    <div class="shop__toast" [class.shop__toast--err]="t.kind === 'err'" role="status">
+    <div class="shop-toast" [class.shop-toast--err]="t.kind === 'err'" role="status">
       {{ t.text }}
     </div>
   }
 
-  <header class="shop__header">
-    <h1 class="shop__title">Tienda</h1>
-    <div class="shop__wallet" aria-live="polite">
-      <span class="shop__wallet-label">Monedas</span>
-      <span class="shop__wallet-amount">{{ wallet.coins() }}</span>
-      <span class="shop__wallet-icon" aria-hidden="true">🪙</span>
+  <header class="shop-header">
+    <h1 class="shop-title">Tienda</h1>
+    <div class="shop-wallet" aria-live="polite">
+      <span class="shop-wallet-label">Monedas</span>
+      <span class="shop-wallet-amount">{{ wallet.coins() }}</span>
+      <span class="shop-wallet-icon" aria-hidden="true">🪙</span>
     </div>
   </header>
 
-  <section class="shop__featured" aria-labelledby="shop-offer-heading">
-    <div class="shop__offer">
-      <h2 id="shop-offer-heading" class="shop__offer-title">Oferta del día</h2>
-      <p class="shop__offer-hint">
-        Precio rebajado hasta la medianoche local. Misma ventana que la recompensa de la partida diaria.
+  <section class="shop-featured" aria-labelledby="shop-offer-heading">
+    <div class="shop-offer">
+      <h2 id="shop-offer-heading" class="shop-offer-title">Oferta del día</h2>
+      <p class="shop-offer-hint">
+          Cada 24 horas, una skin de bola diferente estará disponible a un precio especial. ¡No te pierdas la oportunidad de conseguir tu skin favorita a un precio reducido!
       </p>
-      <div class="shop__timer" role="timer" [attr.aria-label]="'Tiempo hasta renovación: ' + countdown()">
-        <span class="shop__timer-label">Termina en</span>
-        <span class="shop__timer-digits">{{ countdown() }}</span>
+      <div class="shop-timer" role="timer" [attr.aria-label]="'Tiempo hasta renovación: ' + countdown()">
+        <span class="shop-timer-label">Termina en</span>
+        <span class="shop-timer-digits">{{ countdown() }}</span>
       </div>
-      <div class="shop__featured-card">
+      <div class="shop-featured-card">
         @if (dailySkin(); as dealSkin) {
           <app-ball-card
             [skin]="dealSkin"
@@ -38,15 +38,15 @@
             (purchase)="onPurchase($event)"
           />
         } @else {
-          <p class="shop__empty-featured">No hay bolas en el catálogo.</p>
+          <p class="shop-empty-featured">No hay bolas en el catálogo.</p>
         }
       </div>
     </div>
   </section>
 
-  <section class="shop__catalog" aria-labelledby="shop-catalog-heading">
-    <h2 id="shop-catalog-heading" class="shop__catalog-title">Skins de bola</h2>
-    <div class="shop__grid">
+  <section class="shop-catalog" aria-labelledby="shop-catalog-heading">
+    <h2 id="shop-catalog-heading" class="shop-catalog-title">Skins de bola</h2>
+    <div class="shop-grid">
       @for (skin of catalog(); track skin.id) {
         <app-ball-card
           [skin]="skin"
