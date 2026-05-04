@@ -1,0 +1,72 @@
+<div class="leaderboard">
+  <header class="leaderboard__header">
+    <h1 class="leaderboard__title">Clasificación</h1>
+  </header>
+
+  <section class="leaderboard__countdown" aria-labelledby="lb-count-heading">
+    <h2 id="lb-count-heading" class="leaderboard__countdown-heading">
+      Tiempo hasta poder jugar la siguiente partida
+    </h2>
+    <p class="leaderboard__countdown-hint">
+      Gracias por haber jugado la partida de hoy, recuerda que puedes jugar otra partida mañana a partir de las 00:00 horas, hora local.
+    </p>
+    <div
+      class="leaderboard__timer"
+      role="timer"
+      [attr.aria-label]="'Tiempo hasta medianoche local: ' + countdown()"
+    >
+      <span class="leaderboard__timer-label">Quedan</span>
+      <span class="leaderboard__timer-digits">{{ countdown() }}</span>
+    </div>
+  </section>
+
+  <div class="leaderboard__boards">
+    <section class="leaderboard__panel" aria-labelledby="lb-week-heading">
+      <h2 id="lb-week-heading" class="leaderboard__panel-title">Leaderboard semanal</h2>
+      <p class="leaderboard__panel-meta">
+        Semana actual: <strong>{{ weekRangeLabel() }}</strong> · Top 10
+      </p>
+      <ol class="leaderboard__list">
+        @for (item of weeklyItems; track trackWeekly($index, item)) {
+          @if (item.kind === 'gap') {
+            <li class="leaderboard__gap" role="separator" [attr.aria-label]="item.ariaLabel">
+              ···
+            </li>
+          } @else {
+            <li
+              class="leaderboard__row"
+              [class.leaderboard__row--you]="item.row.isYou"
+            >
+              <span class="leaderboard__rank">{{ item.row.rank }}</span>
+              <span class="leaderboard__name">{{ item.row.playerName }}</span>
+              <span class="leaderboard__score">{{ item.row.score | number }}</span>
+            </li>
+          }
+        }
+      </ol>
+    </section>
+
+    <section class="leaderboard__panel" aria-labelledby="lb-general-heading">
+      <h2 id="lb-general-heading" class="leaderboard__panel-title">Leaderboard general</h2>
+      <p class="leaderboard__panel-meta">Histórico · Top 10</p>
+      <ol class="leaderboard__list">
+        @for (item of generalItems; track trackGeneral($index, item)) {
+          @if (item.kind === 'gap') {
+            <li class="leaderboard__gap" role="separator" [attr.aria-label]="item.ariaLabel">
+              ···
+            </li>
+          } @else {
+            <li
+              class="leaderboard__row"
+              [class.leaderboard__row--you]="item.row.isYou"
+            >
+              <span class="leaderboard__rank">{{ item.row.rank }}</span>
+              <span class="leaderboard__name">{{ item.row.playerName }}</span>
+              <span class="leaderboard__score">{{ item.row.score | number }}</span>
+            </li>
+          }
+        }
+      </ol>
+    </section>
+  </div>
+</div>

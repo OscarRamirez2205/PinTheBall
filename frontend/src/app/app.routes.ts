@@ -1,4 +1,9 @@
 import { Routes } from '@angular/router';
+import {
+  redirectToGameIfDailyNotDoneGuard,
+  redirectToLeaderboardIfDailyDoneGuard,
+} from './guards/daily-play.guards';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -11,6 +16,7 @@ export const routes: Routes = [
       },
       {
         path: 'game',
+        canActivate: [redirectToLeaderboardIfDailyDoneGuard],
         loadComponent: () => import('./game/game').then((m) => m.Game),
       },
       {
@@ -19,7 +25,13 @@ export const routes: Routes = [
       },
       {
         path: 'shop',
+        canActivate: [authGuard],
         loadComponent: () => import('./shop/shop').then((m) => m.Shop),
+      },
+      {
+        path: 'leaderboard',
+        canActivate: [redirectToGameIfDailyNotDoneGuard],
+        loadComponent: () => import('./leaderboard/leaderboard').then((m) => m.Leaderboard),
       },
     ],
   },
@@ -30,5 +42,9 @@ export const routes: Routes = [
   {
     path: 'register',
     loadComponent: () => import('./register/register').then((m) => m.Register),
+  },
+  {
+    path: 'logout',
+    loadComponent: () => import('./logout/logout').then((m) => m.Logout),
   },
 ];

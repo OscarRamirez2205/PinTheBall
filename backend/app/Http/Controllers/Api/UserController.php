@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Ball;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -20,12 +23,17 @@ class UserController extends Controller
         }
 
         $data = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'regex:/^[A-Za-z]{3}$/'],
             'email' => 'required|email|max:255|unique:users,email',
             'password' => 'required|string|min:6',
             'role' => 'sometimes|in:admin,player',
+            'wallet' => 'sometimes|integer|min:0',
             'available_at' => 'sometimes|integer',
+        ], [
+            'name.regex' => 'El nombre debe ser exactamente 3 letras (A-Z), estilo marcador arcade.',
         ]);
+
+        $data['name'] = Str::upper($data['name']);
 
         $now = now()->timestamp;
         $user = User::create([
@@ -33,6 +41,7 @@ class UserController extends Controller
             'email' => $data['email'],
             'password' => $data['password'],
             'role' => $data['role'] ?? 'player',
+            'wallet' => $data['wallet'] ?? 0,
             'available_at' => $data['available_at'] ?? $now,
             'created_at' => $now,
         ]);
@@ -53,15 +62,26 @@ class UserController extends Controller
         }
 
         $data = $request->validate([
-            'name' => 'sometimes|string|max:255',
+            'name' => ['sometimes', 'required', 'string', 'regex:/^[A-Za-z]{3}$/'],
             'email' => 'sometimes|email|max:255|unique:users,email,'.$user->id,
             'password' => 'sometimes|string|min:6',
             'role' => 'sometimes|in:admin,player',
+            'wallet' => 'sometimes|integer|min:0',
             'available_at' => 'sometimes|integer',
+        ], [
+            'name.regex' => 'El nombre debe ser exactamente 3 letras (A-Z), estilo marcador arcade.',
         ]);
+
+        if (array_key_exists('name', $data)) {
+            $data['name'] = Str::upper($data['name']);
+        }
 
         if ($auth->role !== 'admin' && array_key_exists('role', $data)) {
             unset($data['role']);
+        }
+
+        if ($auth->role !== 'admin' && array_key_exists('wallet', $data)) {
+            unset($data['wallet']);
         }
 
         $user->fill($data);
@@ -99,17 +119,59 @@ class UserController extends Controller
         ]);
 
         $user = $request->user();
+        $ball = Ball::query()->findOrFail($request->ball_id);
 
-        if ($user->balls()->where('ball_id', $request->ball_id)->exists()) {
+        if ($user->balls()->where('balls.id', $ball->id)->exists()) {
             return response()->json([
                 'message' => 'Ya tienes esta bola',
             ], 400);
         }
 
-        $user->balls()->attach($request->ball_id);
+        $cost = $this->purchasePriceFor($ball);
+
+        if ($cost > 0 && $user->wallet < $cost) {
+            return response()->json([
+                'message' => 'Saldo insuficiente',
+            ], 400);
+        }
+
+        DB::transaction(function () use ($user, $ball, $cost) {
+            if ($cost > 0) {
+                $user->wallet -= $cost;
+                $user->save();
+            }
+            $user->balls()->attach($ball->id);
+        });
 
         return response()->json([
             'message' => 'Bola comprada correctamente',
+            'user' => $user->fresh(),
         ]);
+    }
+
+    private function purchasePriceFor(Ball $ball): int
+    {
+        $featuredId = $this->featuredBallId();
+        if ($featuredId !== null && (int) $ball->id === $featuredId) {
+            if ($ball->deal_price !== null) {
+                return (int) $ball->deal_price;
+            }
+            if ((int) $ball->price > 0) {
+                return max(99, (int) floor($ball->price * 0.55));
+            }
+        }
+
+        return (int) $ball->price;
+    }
+
+    private function featuredBallId(): ?int
+    {
+        $ids = Ball::query()->orderBy('id')->pluck('id')->all();
+        if ($ids === []) {
+            return null;
+        }
+        $epochDay = intdiv(now()->timestamp, 86400);
+
+        return (int) $ids[$epochDay % count($ids)];
     }
 }

@@ -16,6 +16,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'wallet',
         'role',
         'available_at',
         'created_at',
@@ -30,6 +31,7 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'wallet' => 'integer',
             'available_at' => 'integer',
             'created_at' => 'integer',
         ];

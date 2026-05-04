@@ -1,4 +1,8 @@
 <div class="shop">
+  @if (loadError(); as err) {
+    <p class="shop__error" role="alert">{{ err }}</p>
+  }
+
   @if (toast(); as t) {
     <div class="shop__toast" [class.shop__toast--err]="t.kind === 'err'" role="status">
       {{ t.text }}
@@ -25,13 +29,17 @@
         <span class="shop__timer-digits">{{ countdown() }}</span>
       </div>
       <div class="shop__featured-card">
-        <app-ball-card
-          [skin]="dailySkin()"
-          [dealPrice]="dailyDealPrice()"
-          [coins]="wallet.coins()"
-          [owned]="owned(dailySkin().id)"
-          (purchase)="onPurchase($event)"
-        />
+        @if (dailySkin(); as dealSkin) {
+          <app-ball-card
+            [skin]="dealSkin"
+            [dealPrice]="dailyDealPrice()"
+            [coins]="wallet.coins()"
+            [owned]="owned(dealSkin.id)"
+            (purchase)="onPurchase($event)"
+          />
+        } @else {
+          <p class="shop__empty-featured">No hay bolas en el catálogo.</p>
+        }
       </div>
     </div>
   </section>
@@ -39,7 +47,7 @@
   <section class="shop__catalog" aria-labelledby="shop-catalog-heading">
     <h2 id="shop-catalog-heading" class="shop__catalog-title">Skins de bola</h2>
     <div class="shop__grid">
-      @for (skin of catalog; track skin.id) {
+      @for (skin of catalog(); track skin.id) {
         <app-ball-card
           [skin]="skin"
           [dealPrice]="dealPriceFor(skin)"

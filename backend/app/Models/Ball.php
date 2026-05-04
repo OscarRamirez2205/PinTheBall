@@ -11,8 +11,18 @@ class Ball extends Model
 
     protected $fillable = [
         'name',
-        'subname'
+        'subname',
+        'price',
+        'deal_price',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'price' => 'integer',
+            'deal_price' => 'integer',
+        ];
+    }
 
     // 🔗 Una bola puede pertenecer a muchos usuarios
     public function users()

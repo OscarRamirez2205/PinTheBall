@@ -1,6 +1,26 @@
 @use 'sass:color';
 @use '../../styles/variables' as *;
 
+.shop__error {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(#ff3864, 0.45);
+  color: $text-color-1;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+}
+
+.shop__empty-featured {
+  margin: 0;
+  padding: 1.5rem;
+  text-align: center;
+  color: $text-color-2;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+}
+
 .shop {
   padding: 1rem 1.25rem 2.5rem;
   max-width: 1200px;
@@ -118,9 +138,9 @@
 .shop__offer-title {
   margin: 0;
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.72rem;
+  font-size: clamp(1.12rem, 3.2vw, 1.52rem);
   font-weight: 700;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: $secondary-color;
   text-shadow: 0 0 12px rgba($secondary-color, 0.35);
@@ -147,34 +167,50 @@
 }
 
 .shop__timer {
-  display: inline-flex;
+  box-sizing: border-box;
+  display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.85rem 1.1rem;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 1.05rem 1.35rem;
   border-radius: 12px;
   background: rgba($background-color1, 0.75);
   border: 1px solid rgba($primary-color, 0.35);
-  justify-self: start;
+  width: 100%;
+  min-width: 0;
 
   @media (min-width: 900px) {
     grid-column: 1;
     grid-row: 3;
-    align-self: start;
+    align-self: stretch;
+    height: 100%;
+    min-height: 0;
+    padding: 1.15rem 1.5rem;
   }
 }
 
 .shop__timer-label {
-  font-size: 0.58rem;
-  letter-spacing: 0.2em;
+  flex-shrink: 0;
+  font-size: clamp(0.78rem, 2.2vw, 0.92rem);
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: $text-color-2;
+  text-align: center;
 }
 
 .shop__timer-digits {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  width: 100%;
   font-family: 'Orbitron', monospace;
-  font-size: 1.65rem;
+  font-size: clamp(2.35rem, 5vw + 1.35rem, 3.85rem);
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: min(0.22em, 0.55rem);
+  line-height: 1.05;
   color: $text-color-1;
   text-shadow: 0 0 14px rgba($text-color-1, 0.45);
 }

@@ -2,30 +2,75 @@
   <div class="register-box">
     <h1 class="title">Registrarse</h1>
 
-    <form>
-      <div class="input-group">
-        <label>Nombre de usuario</label>
-        <input type="text" placeholder="Introduce tu nombre de usuario" />
+    <form (ngSubmit)="onSubmit()">
+      <div class="input-group input-group--arcade">
+        <label for="register-name">Nombre arcade (3 letras)</label>
+        <input
+          id="register-name"
+          type="text"
+          name="name"
+          maxlength="3"
+          autocapitalize="characters"
+          autocomplete="username"
+          placeholder="Ej: JAX"
+          title="Exactamente tres letras, como en los marcadores arcade"
+          pattern="[A-Za-z]{3}"
+          [(ngModel)]="form.name"
+          required
+        />
+        <small class="input-hint">Solo letras de la A a la Z, tres caracteres en mayúsculas.</small>
       </div>
 
       <div class="input-group">
-        <label>Email</label>
-        <input type="text" placeholder="Introduce tu email" />
+        <label for="register-email">Email</label>
+        <input
+          id="register-email"
+          type="email"
+          name="email"
+          autocomplete="email"
+          placeholder="Introduce tu email"
+          [(ngModel)]="form.email"
+          required
+        />
       </div>
 
       <div class="input-group">
-        <label>Contraseña</label>
-        <input type="password" placeholder="Introduce tu contraseña" />
+        <label for="register-password">Contraseña</label>
+        <input
+          id="register-password"
+          type="password"
+          name="password"
+          autocomplete="new-password"
+          placeholder="Mínimo 6 caracteres"
+          [(ngModel)]="form.password"
+          required
+          minlength="6"
+        />
       </div>
 
       <div class="input-group">
-        <label>Confirmar Contraseña</label>
-        <input type="password" placeholder="Introduce tu contraseña de nuevo" />
+        <label for="register-password-confirm">Confirmar contraseña</label>
+        <input
+          id="register-password-confirm"
+          type="password"
+          name="passwordConfirm"
+          autocomplete="new-password"
+          placeholder="Repite la contraseña"
+          [(ngModel)]="form.passwordConfirm"
+          required
+        />
       </div>
 
-      <button type="submit">REGISTRARSE</button>
-
-      <p class="footer">Has cambiado de opinión? <a routerLink="/">Volver al Homepage</a></p>
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'REGISTRANDO…' : 'REGISTRARSE' }}
+      </button>
     </form>
+
+    @if (errorMessage()) {
+      <div class="error-message" role="alert">
+        {{ errorMessage() }}
+      </div>
+    }
+    <p class="footer footer--compact">Has cambiado de opinión? <a routerLink="/">Volver al Homepage</a></p>
   </div>
 </div>

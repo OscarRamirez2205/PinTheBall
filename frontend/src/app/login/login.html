@@ -2,19 +2,41 @@
   <div class="login-box">
     <h1 class="title">Login</h1>
 
-    <form>
+    <form (ngSubmit)="iniciarSesion()">
       <div class="input-group">
-        <label>Email</label>
-        <input type="text" placeholder="Introduce tu email" />
+        <label for="login-email">Email</label>
+        <input
+          id="login-email"
+          type="email"
+          name="email"
+          autocomplete="email"
+          placeholder="Introduce tu email"
+          [(ngModel)]="credentials.email"
+          required
+        />
       </div>
 
       <div class="input-group">
-        <label>Contraseña</label>
-        <input type="password" placeholder="Introduce tu contraseña" />
+        <label for="login-password">Contraseña</label>
+        <input
+          id="login-password"
+          type="password"
+          name="password"
+          autocomplete="current-password"
+          placeholder="Introduce tu contraseña"
+          [(ngModel)]="credentials.password"
+          required
+        />
       </div>
 
       <button type="submit">ENTRAR</button>
     </form>
+
+    @if (errorMessage()) {
+      <div class="error-message">
+        {{ errorMessage() }}
+      </div>
+    }
 
     <p class="footer">No tienes cuenta? <a routerLink="/register">Regístrate</a></p>
   </div>

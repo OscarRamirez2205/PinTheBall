@@ -14,17 +14,19 @@ class UsersSeeder extends Seeder
 
         DB::table('users')->insert([
             [
-                'name' => 'Admin',
+                'name' => 'ADM',
                 'email' => 'admin@pintheball.com',
                 'password' => Hash::make('123456'),
+                'wallet' => 10_000,
                 'role' => 'admin',
                 'available_at' => $now,
                 'created_at' => $now,
             ],
             [
-                'name' => 'Player1',
+                'name' => 'PLY',
                 'email' => 'player1@pintheball.com',
                 'password' => Hash::make('123456'),
+                'wallet' => 1_420,
                 'role' => 'player',
                 'available_at' => $now,
                 'created_at' => $now,

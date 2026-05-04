@@ -1,13 +1,18 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { API_URL } from '../config/api-url';
+import { ShopWalletService } from '../shop/shop-wallet.service';
 
 export interface AuthUser {
   id: number;
   name: string | null;
   email: string;
   role: string;
+  wallet?: number;
+  available_at?: number;
+  created_at?: number;
 }
 
 export interface LoginResponse {
@@ -17,18 +22,62 @@ export interface LoginResponse {
 }
 
 const TOKEN_KEY = 'ptb_auth_token';
+const USER_KEY = 'ptb_auth_user';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly shopWallet = inject(ShopWalletService);
+  private readonly sessionPresent = signal(false);
+
+  constructor() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.sessionPresent.set(this.getToken() !== null);
+    }
+  }
+
+  private syncSessionFromStorage(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    this.sessionPresent.set(this.getToken() !== null);
+  }
+
+  /** Hay sesión local (token en `localStorage`). Usado en plantillas con `auth.hasSession()`. */
+  hasSession(): boolean {
+    return this.sessionPresent();
+  }
 
   /** Misma base que `API_URL` (útil para depuración o otros servicios). */
   readonly apiBaseUrl = API_URL;
 
   login(email: string, password: string): Observable<LoginResponse> {
-    return this.http
-      .post<LoginResponse>(`${API_URL}/login`, { email, password })
-      .pipe(tap((res) => this.setToken(res.token)));
+    return this.http.post<LoginResponse>(`${API_URL}/login`, { email, password }).pipe(
+      tap((res) => {
+        this.setToken(res.token);
+        this.setUser(res.user);
+      }),
+    );
+  }
+
+  register(payload: {
+    name: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+  }): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${API_URL}/register`, payload).pipe(
+      tap((res) => {
+        this.setToken(res.token);
+        this.setUser(res.user);
+      }),
+    );
+  }
+
+  /** Borra token y usuario del `localStorage` y resetea estado en memoria. */
+  logout(): void {
+    this.clearToken();
   }
 
   setToken(token: string): void {
@@ -36,6 +85,14 @@ export class AuthService {
       return;
     }
     localStorage.setItem(TOKEN_KEY, token);
+    this.syncSessionFromStorage();
+  }
+
+  setUser(user: AuthUser): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 
   getToken(): string | null {
@@ -45,10 +102,27 @@ export class AuthService {
     return localStorage.getItem(TOKEN_KEY);
   }
 
-  clearToken(): void {
+  getUser(): AuthUser | null {
     if (typeof localStorage === 'undefined') {
-      return;
+      return null;
     }
-    localStorage.removeItem(TOKEN_KEY);
+    const raw = localStorage.getItem(USER_KEY);
+    if (!raw) {
+      return null;
+    }
+    try {
+      return JSON.parse(raw) as AuthUser;
+    } catch {
+      return null;
+    }
+  }
+
+  clearToken(): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+    }
+    this.sessionPresent.set(false);
+    this.shopWallet.reset();
   }
 }

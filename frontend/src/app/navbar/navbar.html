@@ -13,11 +13,16 @@
         </li>
         <li><a routerLink="/game" routerLinkActive="active">Jugar</a></li>
         <li><a routerLink="/shop" routerLinkActive="active">Tienda</a></li>
+        @if (auth.hasSession()) {
+            <li>
+                <a routerLink="/logout" class="nav-bar-action">Cerrar sesión</a>
+            </li>
+        }
     </ul>
     
-    @if (token) {
+    @if (auth.hasSession()) {
         <div class="nav-links Profile">
-            <img src="" alt="Profile Picture">
+            <a routerLink="/profile" routerLinkActive="active">Perfil</a>
         </div>
     } @else {
         <div class="nav-links Login">

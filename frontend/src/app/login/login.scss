@@ -76,9 +76,26 @@ button {
   }
 }
 
+.error-message {
+  margin-top: 16px;
+  font-size: 11px;
+  color: #ff6b8a;
+  text-shadow: 0 0 8px rgba(255, 107, 138, 0.5);
+  letter-spacing: 1px;
+}
+
 .footer {
   margin-top: 20px;
   font-size: 10px;
   color: $text-color-2;
   letter-spacing: 2px;
+
+  a {
+    color: $secondary-color;
+    text-decoration: none;
+
+    &:hover {
+      text-shadow: 0 0 8px $primary-color;
+    }
+  }
 }

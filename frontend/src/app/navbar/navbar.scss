@@ -46,7 +46,7 @@
   gap: 25px;
 }
 
-a {
+@mixin nav-link-look {
   text-decoration: none;
   color: $text-color-1;
   font-size: 16px;
@@ -74,4 +74,19 @@ a {
   &.active::after {
     width: 100%;
   }
+}
+
+a {
+  @include nav-link-look;
+}
+
+/** Cierre de sesión: `routerLink="/logout"` → componente que limpia y recarga. */
+button.nav-bar-action,
+a.nav-bar-action {
+  @include nav-link-look;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
 }

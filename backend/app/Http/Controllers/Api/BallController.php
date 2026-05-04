@@ -18,6 +18,8 @@ class BallController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'subname' => 'nullable|string|max:255',
+            'price' => 'nullable|integer|min:0',
+            'deal_price' => 'nullable|integer|min:0',
         ]);
 
         $ball = Ball::create($data);
@@ -35,6 +37,8 @@ class BallController extends Controller
         $data = $request->validate([
             'name' => 'sometimes|string|max:255',
             'subname' => 'nullable|string|max:255',
+            'price' => 'sometimes|nullable|integer|min:0',
+            'deal_price' => 'sometimes|nullable|integer|min:0',
         ]);
 
         $ball->fill($data);

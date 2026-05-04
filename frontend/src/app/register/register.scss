@@ -57,6 +57,19 @@
       box-shadow: 0 0 10px $primary-color;
     }
   }
+
+  &.input-group--arcade input {
+    text-transform: uppercase;
+  }
+
+  .input-hint {
+    margin-top: 6px;
+    font-size: 10px;
+    color: $text-color-2;
+    text-align: left;
+    line-height: 1.35;
+    letter-spacing: 0.05em;
+  }
 }
 
 button {
@@ -70,10 +83,23 @@ button {
   letter-spacing: 2px;
   transition: 0.3s;
 
-  &:hover {
+  &:hover:not(:disabled) {
     transform: scale(1.05);
     box-shadow: 0 0 20px $secondary-color;
   }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.error-message {
+  margin-top: 16px;
+  font-size: 11px;
+  color: #ff6b8a;
+  text-shadow: 0 0 8px rgba(255, 107, 138, 0.5);
+  letter-spacing: 1px;
 }
 
 .footer {
@@ -81,4 +107,17 @@ button {
   font-size: 10px;
   color: $text-color-2;
   letter-spacing: 2px;
+
+  a {
+    color: $secondary-color;
+    text-decoration: none;
+
+    &:hover {
+      text-shadow: 0 0 8px $primary-color;
+    }
+  }
+
+  &--compact {
+    margin-top: 10px;
+  }
 }

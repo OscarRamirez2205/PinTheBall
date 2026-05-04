@@ -1,40 +1,36 @@
 import { Injectable, signal } from '@angular/core';
 
+/**
+ * Monedero e inventario de bolas alineados con la API (tienda / perfil).
+ */
 @Injectable({ providedIn: 'root' })
 export class ShopWalletService {
-  /** Monedas disponibles (demo; luego enlazar con API / partidas) */
-  private readonly _coins = signal(1_420);
-
-  private readonly _ownedIds = signal<Set<string>>(new Set(['classic']));
+  private readonly _coins = signal(0);
+  private readonly _ownedBallIds = signal<Set<number>>(new Set());
 
   readonly coins = this._coins.asReadonly();
-  readonly ownedIds = this._ownedIds.asReadonly();
+  readonly ownedBallIds = this._ownedBallIds.asReadonly();
 
-  isOwned(skinId: string): boolean {
-    return this._ownedIds().has(skinId);
+  reset(): void {
+    this._coins.set(0);
+    this._ownedBallIds.set(new Set());
   }
 
-  /**
-   * Compra una skin. Devuelve false si ya la tienes o no hay saldo.
-   * Precio 0 solo desbloquea si no está en catálogo como pago.
-   */
-  tryBuy(skinId: string, price: number): boolean {
-    if (this._ownedIds().has(skinId)) {
-      return false;
-    }
-    if (price > 0 && this._coins() < price) {
-      return false;
-    }
-    if (price > 0) {
-      this._coins.update((c) => c - price);
-    }
-    this._ownedIds.update((s) => new Set(s).add(skinId));
-    return true;
+  /** Sincroniza saldo y bolas poseídas desde GET usuario + inventario. */
+  hydrate(wallet: number, ownedBallIds: number[]): void {
+    this._coins.set(Math.max(0, wallet));
+    this._ownedBallIds.set(new Set(ownedBallIds));
   }
 
-  /** Solo para pruebas / futuro sync con backend */
-  addCoins(amount: number): void {
-    if (amount <= 0) return;
-    this._coins.update((c) => c + amount);
+  isOwnedSkinId(skinId: string): boolean {
+    const n = Number(skinId);
+    if (Number.isNaN(n)) return false;
+    return this._ownedBallIds().has(n);
+  }
+
+  /** Tras compra exitosa (respuesta del servidor). */
+  applyServerPurchase(userWallet: number, ballId: number): void {
+    this._coins.set(Math.max(0, userWallet));
+    this._ownedBallIds.update((s) => new Set(s).add(ballId));
   }
 }

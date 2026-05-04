@@ -18,9 +18,10 @@ class UserFactory extends Factory
         $now = now()->timestamp;
 
         return [
-            'name' => fake()->name(),
+            'name' => strtoupper(fake()->lexify('???')),
             'email' => fake()->unique()->safeEmail(),
             'password' => static::$password ??= Hash::make('password'),
+            'wallet' => 0,
             'role' => 'player',
             'available_at' => $now,
             'created_at' => $now,
