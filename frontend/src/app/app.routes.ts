@@ -15,11 +15,6 @@ export const routes: Routes = [
         loadComponent: () => import('./homepage/homepage').then((m) => m.Homepage),
       },
       {
-        path: 'game',
-        canActivate: [redirectToLeaderboardIfDailyDoneGuard],
-        loadComponent: () => import('./game/game').then((m) => m.Game),
-      },
-      {
         path: 'profile',
         loadComponent: () => import('./profile/profile').then((m) => m.Profile),
       },
@@ -46,5 +41,10 @@ export const routes: Routes = [
   {
     path: 'logout',
     loadComponent: () => import('./logout/logout').then((m) => m.Logout),
+  },
+  {
+    path: 'game',
+    canActivate: [redirectToLeaderboardIfDailyDoneGuard],
+    loadComponent: () => import('./game/game').then((m) => m.Game),
   },
 ];
