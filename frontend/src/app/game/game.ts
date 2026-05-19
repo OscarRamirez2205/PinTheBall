@@ -11,6 +11,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { DailyPlayLockService } from '../services/daily-play-lock.service';
 import * as BABYLON from '@babylonjs/core';
+import * as GUI from '@babylonjs/gui';
 import '@babylonjs/loaders/glTF';
 import { ImportMeshAsync } from '@babylonjs/core/Loading/sceneLoader';
 import HavokPhysics from '@babylonjs/havok';
@@ -90,6 +91,78 @@ export class Game implements AfterViewInit, OnDestroy {
         const root = result.meshes[0];
         root.scaling = new BABYLON.Vector3(-6, 6, 6);
         root.position.y = -4;
+
+        //Sistema de vidas y puntuacion
+        let score = 0;
+        let livesLeft = 3;
+        const maxScore = 99_999_999;
+        const maxLives = 3;
+        const scoreUi = GUI.AdvancedDynamicTexture.CreateFullscreenUI('score-ui', true, scene);
+        const scoreContainer = new GUI.Rectangle('score-container');
+        scoreContainer.width = '420px';
+        scoreContainer.height = '64px';
+        scoreContainer.thickness = 0;
+        scoreContainer.cornerRadius = 12;
+        scoreContainer.background = '#261447CC';
+        scoreContainer.top = '20px';
+        scoreContainer.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        scoreContainer.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        scoreUi.addControl(scoreContainer);
+        const scoreText = new GUI.TextBlock('score-text', 'Score: 00.000.000');
+        scoreText.color = '#1bf9fb';
+        scoreText.fontSize = 28;
+        if (typeof window !== 'undefined') {
+          scoreText.fontFamily = window.getComputedStyle(document.body).fontFamily;
+        }
+        scoreContainer.addControl(scoreText);
+        const heartSizePx = 44;
+        const heartGapPx = 10;
+        const livesContainer = new GUI.Rectangle('lives-container');
+        livesContainer.width = `${heartSizePx * maxLives + heartGapPx * (maxLives - 1)}px`;
+        livesContainer.height = `${heartSizePx}px`;
+        livesContainer.thickness = 0;
+        livesContainer.top = '24px';
+        livesContainer.left = '-24px';
+        livesContainer.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        livesContainer.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        scoreUi.addControl(livesContainer);
+        const fullHeartImage = '/resources/img/heart.webp';
+        const emptyHeartImage = '/resources/img/heart2.webp';
+        const heartIcons: GUI.Image[] = [];
+        for (let i = 0; i < maxLives; i++) {
+          const heartIcon = new GUI.Image(`life-heart-${i}`, fullHeartImage);
+          heartIcon.width = `${heartSizePx}px`;
+          heartIcon.height = `${heartSizePx}px`;
+          heartIcon.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+          heartIcon.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+          heartIcon.left = `${i * (heartSizePx + heartGapPx)}px`;
+          heartIcon.stretch = GUI.Image.STRETCH_UNIFORM;
+          livesContainer.addControl(heartIcon);
+          heartIcons.push(heartIcon);
+        }
+        const formatScore = (value: number): string => {
+          const clampedValue = BABYLON.Scalar.Clamp(value, 0, maxScore);
+          const padded = Math.floor(clampedValue).toString().padStart(8, '0');
+          return `${padded.slice(0, 2)}.${padded.slice(2, 5)}.${padded.slice(5, 8)}`;
+        };
+        const updateScoreText = () => {
+          scoreText.text = `Score: ${formatScore(score)}`;
+        };
+        const updateLivesUi = () => {
+          for (let i = 0; i < heartIcons.length; i++) {
+            heartIcons[i].source = i < livesLeft ? fullHeartImage : emptyHeartImage;
+          }
+        };
+        updateScoreText();
+        updateLivesUi();
+        const getBumperPointsFromName = (name: string): number => {
+          const pointsMatch = name.match(/(\d+)/);
+          if (!pointsMatch) {
+            return 0;
+          }
+          return Number.parseInt(pointsMatch[1], 10) || 0;
+        };
+        let lastScoredBumperName: string | null = null;
 
 
         // Meshes (Cada parte del pinball)
@@ -427,14 +500,29 @@ export class Game implements AfterViewInit, OnDestroy {
           bumper6300R,
           bumper6300Midl,
         ].filter((mesh): mesh is BABYLON.AbstractMesh => mesh instanceof BABYLON.AbstractMesh);
+        const bumperBodyToName = new Map<BABYLON.PhysicsBody, string>();
+        const onBumperHitByName = (bumperName: string) => {
+          if (lastScoredBumperName === bumperName) {
+            return;
+          }
+          const bumperPoints = getBumperPointsFromName(bumperName);
+          if (bumperPoints <= 0) {
+            return;
+          }
+          score = BABYLON.Scalar.Clamp(score + bumperPoints, 0, maxScore);
+          lastScoredBumperName = bumperName;
+          updateScoreText();
+          console.log(`[TRIGGER] Bumper hit: ${bumperName} (+${bumperPoints}) => ${score}`);
+        };
 
         for (const bumper of bumpers) {
-          new BABYLON.PhysicsAggregate(
+          const bumperAggregate = new BABYLON.PhysicsAggregate(
             bumper,
             BABYLON.PhysicsShapeType.MESH,
             { mass: 0, friction: 0.2, restitution: 1.5 },
             scene,
           );
+          bumperBodyToName.set(bumperAggregate.body, bumper.name);
         }
         
 
@@ -445,6 +533,9 @@ export class Game implements AfterViewInit, OnDestroy {
           safeSpawnPosition.x += 0.4;
           const spawnPointDown = safeSpawnPosition.clone();
           let shouldRespawnBall = false;
+          const pendingBumperHits = new Set<string>();
+          const bumperHitCooldownFramesByName = new Map<string, number>();
+          const touchingBumpers = new Set<string>();
           const createNewBall = () => {
             if (activeBall) {
               activeBall.dispose();
@@ -475,16 +566,23 @@ export class Game implements AfterViewInit, OnDestroy {
             }
             spawnedBallBody.setLinearDamping(0.05);
             spawnedBallBody.setAngularDamping(0.05);
-            if (bottomOutBody) {
-              spawnedBallBody.getCollisionObservable().add((collisionEvent) => {
-                if (collisionEvent.collidedAgainst === bottomOutBody) {
-                  shouldRespawnBall = true;
-                }
-              });
-            }
+            spawnedBallBody.getCollisionObservable().add((collisionEvent) => {
+              if (bottomOutBody && collisionEvent.collidedAgainst === bottomOutBody) {
+                shouldRespawnBall = true;
+                return;
+              }
+              const collidedBumperName = bumperBodyToName.get(collisionEvent.collidedAgainst);
+              if (collidedBumperName) {
+                pendingBumperHits.add(collidedBumperName);
+              }
+            });
 
             activeBall = spawnedBall;
             activeBallBody = spawnedBallBody;
+            pendingBumperHits.clear();
+            bumperHitCooldownFramesByName.clear();
+            touchingBumpers.clear();
+            lastScoredBumperName = null;
           };
           createNewBall();
 
@@ -492,22 +590,81 @@ export class Game implements AfterViewInit, OnDestroy {
           const maxBallSpeedSquared = maxBallSpeed * maxBallSpeed;
           const currentBallVelocity = BABYLON.Vector3.Zero();
           const zeroVelocity = BABYLON.Vector3.Zero();
+          const ballCenter = BABYLON.Vector3.Zero();
+          const bumperCenter = BABYLON.Vector3.Zero();
           let bottomOutCooldownFrames = 0;
+          
+          const loseLifeAndRespawn = () => {
+            if (livesLeft <= 0) {
+              return;
+            }
+            livesLeft = Math.max(0, livesLeft - 1);
+            updateLivesUi();
+            if (livesLeft <= 0) {
+              if (activeBall) {
+                activeBall.dispose();
+                activeBall = null;
+                activeBallBody = null;
+              }
+              return;
+            }
+            createNewBall();
+            if (activeBallBody) {
+              activeBallBody.setLinearVelocity(zeroVelocity);
+              activeBallBody.setAngularVelocity(zeroVelocity);
+            }
+          };
 
           scene.onBeforeRenderObservable.add(() => {
             if (!activeBall || !activeBallBody) {
               return;
             }
 
+            for (const [bumperName, cooldownFrames] of bumperHitCooldownFramesByName.entries()) {
+              if (cooldownFrames <= 1) {
+                bumperHitCooldownFramesByName.delete(bumperName);
+              } else {
+                bumperHitCooldownFramesByName.set(bumperName, cooldownFrames - 1);
+              }
+            }
+            for (const bumperName of pendingBumperHits) {
+              if ((bumperHitCooldownFramesByName.get(bumperName) ?? 0) > 0) {
+                continue;
+              }
+              onBumperHitByName(bumperName);
+              bumperHitCooldownFramesByName.set(bumperName, 4);
+            }
+            pendingBumperHits.clear();
+
+            // Fallback puntuacion
+            const ballSphere = activeBall.getBoundingInfo().boundingSphere;
+
+            ballCenter.copyFrom(ballSphere.centerWorld);
+            const ballRadius = ballSphere.radiusWorld;
+
+            for (const bumper of bumpers) {
+              const bumperName = bumper.name;
+              const bumperSphere = bumper.getBoundingInfo().boundingSphere;
+              bumperCenter.copyFrom(bumperSphere.centerWorld);
+              const triggerDistance = ballRadius + bumperSphere.radiusWorld * 0.45;
+              const isStrictlyTouching = activeBall.intersectsMesh(bumper, true) && BABYLON.Vector3.DistanceSquared(ballCenter, bumperCenter) <= triggerDistance * triggerDistance;
+              const wasTouching = touchingBumpers.has(bumperName);
+              if (isStrictlyTouching && !wasTouching) {
+                touchingBumpers.add(bumperName);
+                if ((bumperHitCooldownFramesByName.get(bumperName) ?? 0) <= 0) {
+                  onBumperHitByName(bumperName);
+                  bumperHitCooldownFramesByName.set(bumperName, 4);
+                }
+              } else if (!isStrictlyTouching && wasTouching) {
+                touchingBumpers.delete(bumperName);
+              }
+            }
+
             if (bottomOutCooldownFrames > 0) {
               bottomOutCooldownFrames--;
             } else if (shouldRespawnBall || (bottomOutMesh && activeBall.intersectsMesh(bottomOutMesh, true))) {
               shouldRespawnBall = false;
-              createNewBall();
-              if (activeBallBody) {
-                activeBallBody.setLinearVelocity(zeroVelocity);
-                activeBallBody.setAngularVelocity(zeroVelocity);
-              }
+              loseLifeAndRespawn();
               bottomOutCooldownFrames = 20;
               return;
             }
