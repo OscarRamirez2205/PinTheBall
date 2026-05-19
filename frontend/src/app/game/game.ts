@@ -65,7 +65,7 @@ export class Game implements AfterViewInit, OnDestroy {
       const scene = new BABYLON.Scene(engine);
 
       const camera = new BABYLON.FreeCamera("camera1", 
-          new BABYLON.Vector3(0, 5, -10), 
+          new BABYLON.Vector3(0, 12, -4), 
           scene);
 
       camera.setTarget(BABYLON.Vector3.Zero());
