@@ -9,10 +9,10 @@ class UserBall extends Model
 {
     use HasFactory;
 
-    protected $table = 'user_balls';
+    protected $table = 'user_ball';
 
     protected $fillable = [
-        'user_id',
+        'users_id',
         'ball_id'
     ];
 }

@@ -46,12 +46,14 @@ class User extends Authenticatable
     // 🔗 Un usuario puede tener muchas bolas (N:M)
     public function balls()
     {
-        return $this->belongsToMany(Ball::class, 'user_balls');
+        return $this->belongsToMany(Ball::class, 'user_ball', 'users_id', 'ball_id');
     }
 
     public function friends()
     {
-        return $this->belongsToMany(User::class, 'friend_user', 'user_id', 'friend_id')
+        return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
+            ->wherePivot('status', 'accepted')
+            ->withPivot('status')
             ->select('users.id', 'users.name', 'users.email', 'users.role');
     }
 }

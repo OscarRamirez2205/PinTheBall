@@ -13,6 +13,12 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/users/buy-ball', [UserController::class, 'buyBall']);
+    Route::get('/friends', [FriendController::class, 'index']);
+    Route::post('/friends', [FriendController::class, 'store']);
+    Route::get('/friends/notifications', [FriendController::class, 'notifications']);
+    Route::post('/friends/{friend}/respond', [FriendController::class, 'respond']);
+    Route::delete('/friends/{friend}', [FriendController::class, 'destroy']);
+    Route::get('/friends/leaderboard', [FriendController::class, 'leaderboard']);
 });
 
 Route::get('/games/ranking', [GameController::class, 'ranking']);
@@ -23,8 +29,3 @@ Route::apiResource('balls', BallController::class);
 
 Route::get('/users/{user}/balls', [UserController::class, 'userBalls']);
 Route::apiResource('users', UserController::class);
-
-Route::get('/friends', [FriendController::class, 'index']);
-Route::post('/friends', [FriendController::class, 'store']);
-Route::delete('/friends/{friend}', [FriendController::class, 'destroy']);
-Route::get('/friends/leaderboard', [FriendController::class, 'leaderboard']);
