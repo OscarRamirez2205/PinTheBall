@@ -1,8 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, computed, DestroyRef, inject, PLATFORM_ID, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { HttpClient } from '@angular/common/http';
-import { forkJoin } from 'rxjs';
+import { Component, computed, inject, PLATFORM_ID, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { interval } from 'rxjs';
 import { Router } from '@angular/router';
 import { BallCard } from './ball-card/ball-card';
@@ -13,6 +11,7 @@ import { API_URL } from '../config/api-url';
 import { AuthService, type AuthUser } from '../services/auth.service';
 import { ballPreviewGradient } from '../shared/ball-preview';
 import { fallbackDealPrice, featuredBallId } from './shop-featured';
+import { apiFetch } from '../shared/api-fetch';
 
 interface ApiBallRow {
   id: number;
@@ -30,16 +29,18 @@ interface ApiBallRow {
   styleUrl: './shop.scss',
 })
 export class Shop {
-  private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly clockTick = toSignal(interval(1000), { initialValue: 0 });
   readonly wallet = inject(ShopWalletService);
 
   readonly apiBalls = signal<ApiBallRow[]>([]);
   readonly loadError = signal<string | null>(null);
-  readonly countdown = signal('--:--:--');
+  readonly countdown = computed(() => {
+    this.clockTick();
+    return formatCountdownHms(msUntilLocalMidnight());
+  });
   readonly toast = signal<{ kind: 'ok' | 'err'; text: string } | null>(null);
 
   readonly catalog = computed<ShopSkin[]>(() =>
@@ -80,11 +81,6 @@ export class Shop {
   });
 
   constructor() {
-    const actualizarCuentaAtras = () =>
-      this.countdown.set(formatCountdownHms(msUntilLocalMidnight()));
-    actualizarCuentaAtras();
-    interval(1000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(actualizarCuentaAtras);
-
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
@@ -95,21 +91,7 @@ export class Shop {
       return;
     }
 
-    forkJoin({
-      balls: this.http.get<ApiBallRow[]>(`${API_URL}/balls`),
-      owned: this.http.get<ApiBallRow[]>(`${API_URL}/users/${sesion.id}/balls`),
-      profile: this.http.get<AuthUser>(`${API_URL}/users/${sesion.id}`),
-    }).subscribe({
-      next: ({ balls: bolasApi, owned: poseidas, profile: perfil }) => {
-        this.auth.setUser(perfil);
-        this.apiBalls.set([...bolasApi].sort((bolaA, bolaB) => bolaA.id - bolaB.id));
-        const idsPoseidos = poseidas.map((bola) => bola.id);
-        this.wallet.hydrate(perfil.wallet ?? 0, idsPoseidos);
-      },
-      error: () => {
-        this.loadError.set('No se pudo cargar la tienda. Comprueba la API.');
-      },
-    });
+    void this.loadShopData(sesion.id);
   }
 
   owned(skinId: string): boolean {
@@ -139,23 +121,43 @@ export class Shop {
       return;
     }
 
-    this.http
-      .post<{ message: string; user: AuthUser }>(`${API_URL}/users/buy-ball`, { ball_id: ballId })
-      .subscribe({
-        next: (res) => {
-          this.auth.setUser(res.user);
-          this.wallet.applyServerPurchase(res.user.wallet ?? 0, ballId);
-          this.flash('ok', res.message || `¡${event.skin.name} desbloqueada!`);
-        },
-        error: (errorHttp: { error?: { message?: string } }) => {
-          const texto = errorHttp?.error?.message;
-          this.flash('err', typeof texto === 'string' ? texto : 'No se pudo completar la compra.');
-        },
-      });
+    void this.purchaseSkin(ballId, event.skin.name);
   }
 
   private flash(tipo: 'ok' | 'err', texto: string): void {
     this.toast.set({ kind: tipo, text: texto });
     setTimeout(() => this.toast.set(null), 3200);
+  }
+
+  private async loadShopData(userId: number): Promise<void> {
+    try {
+      const [bolasApi, poseidas, perfil] = await Promise.all([
+        apiFetch<ApiBallRow[]>(`${API_URL}/balls`),
+        apiFetch<ApiBallRow[]>(`${API_URL}/users/${userId}/balls`),
+        apiFetch<AuthUser>(`${API_URL}/users/${userId}`),
+      ]);
+      this.auth.setUser(perfil);
+      this.apiBalls.set([...bolasApi].sort((bolaA, bolaB) => bolaA.id - bolaB.id));
+      const idsPoseidos = poseidas.map((bola) => bola.id);
+      this.wallet.hydrate(perfil.wallet ?? 0, idsPoseidos);
+    } catch {
+      this.loadError.set('No se pudo cargar la tienda. Comprueba la API.');
+    }
+  }
+
+  private async purchaseSkin(ballId: number, skinName: string): Promise<void> {
+    try {
+      const res = await apiFetch<{ message: string; user: AuthUser }>(`${API_URL}/users/buy-ball`, {
+        method: 'POST',
+        body: JSON.stringify({ ball_id: ballId }),
+      });
+      this.auth.setUser(res.user);
+      this.wallet.applyServerPurchase(res.user.wallet ?? 0, ballId);
+      this.flash('ok', res.message || `¡${skinName} desbloqueada!`);
+    } catch (error) {
+      const errorHttp = error as { error?: { message?: string } };
+      const texto = errorHttp?.error?.message;
+      this.flash('err', typeof texto === 'string' ? texto : 'No se pudo completar la compra.');
+    }
   }
 }

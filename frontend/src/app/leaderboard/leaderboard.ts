@@ -1,6 +1,6 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, DestroyRef, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, computed, effect, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { interval } from 'rxjs';
 import { DailyPlayLockService } from '../services/daily-play-lock.service';
@@ -25,13 +25,18 @@ const DEMO_GENERAL_USER_RANK = 120;
   styleUrl: './leaderboard.scss',
 })
 export class Leaderboard {
-  private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private readonly dailyLock = inject(DailyPlayLockService);
+  private readonly clockTick = toSignal(interval(1000), { initialValue: 0 });
 
-  readonly countdown = signal('--:--:--');
-
-  readonly weekRangeLabel = signal(formatWeekRangeEs(startOfWeekMondayLocal()));
+  readonly countdown = computed(() => {
+    this.clockTick();
+    return formatCountdownHms(msUntilLocalMidnight());
+  });
+  readonly weekRangeLabel = computed(() => {
+    this.clockTick();
+    return formatWeekRangeEs(startOfWeekMondayLocal());
+  });
 
   readonly weeklyItems: LeaderboardListItem[] = buildTopNPlusOverflow(
     mockPoolYouAtRank(DEMO_WEEKLY_USER_RANK, 'Sem'),
@@ -44,17 +49,12 @@ export class Leaderboard {
   );
 
   constructor() {
-    const actualizar = () => {
+    effect(() => {
+      this.clockTick();
       if (!this.dailyLock.hasCompletedDailyToday()) {
         void this.router.navigate(['/game']);
-        return;
       }
-      this.countdown.set(formatCountdownHms(msUntilLocalMidnight()));
-      this.weekRangeLabel.set(formatWeekRangeEs(startOfWeekMondayLocal()));
-    };
-
-    actualizar();
-    interval(1000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(actualizar);
+    });
   }
 
   trackWeekly(indice: number, item: LeaderboardListItem): string {

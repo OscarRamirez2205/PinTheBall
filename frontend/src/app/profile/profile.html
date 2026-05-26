@@ -94,13 +94,100 @@
                 }
               </span>
             </button>
-          } @empty {
-            <p class="profile-inventory-empty">Aún no tienes bolas. Visita la tienda para desbloquear skins.</p>
-            <a routerLink="/shop" class="profile-inventory-shop-link">Ir a la tienda</a>
+          }
+
+          @for (slot of inventoryEmptySlots(); track slot) {
+            <div class="profile-ball profile-ball--empty" aria-hidden="true"></div>
           }
         </div>
       </section>
     </div>
+
+    <section class="profile-panel profile-panel--friends" aria-labelledby="friends-title">
+      <h2 id="friends-title" class="profile-panel-title">Amigos</h2>
+      <div class="profile-friends-add">
+        <label for="friend-name" class="profile-field-label">Buscar amigo por email</label>
+        <div class="profile-friends-add-row">
+          <input
+            id="friend-name"
+            #friendInput
+            type="email"
+            class="profile-friends-input"
+            placeholder="email@dominio.com"
+            (keyup.enter)="addFriend(friendInput.value); friendInput.value = ''"
+          />
+          <button
+            type="button"
+            class="profile-friends-button"
+            (click)="addFriend(friendInput.value); friendInput.value = ''"
+          >
+            Anadir
+          </button>
+        </div>
+        @if (friendInputError(); as err) {
+          <p class="profile-friends-error">{{ err }}</p>
+        }
+      </div>
+
+      <div class="profile-friends-leaderboard">
+        <h3 class="profile-friends-subtitle">Leaderboard de amigos</h3>
+        <ol class="profile-friends-list">
+          @for (friend of friendLeaderboard(); track trackFriend($index, friend)) {
+            <li class="profile-friends-row">
+              <span class="profile-friends-rank">{{ $index + 1 }}</span>
+              <span class="profile-friends-name">
+                {{ friend.name || friend.email }}
+                @if (friend.is_current_user) {
+                  (Tú)
+                }
+              </span>
+              <span class="profile-friends-score">{{ friend.best_score }}</span>
+            </li>
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="profile-panel profile-panel--friend-notifications" aria-labelledby="friend-notifications-title">
+      <h2 id="friend-notifications-title" class="profile-panel-title">Notificaciones de amistad</h2>
+
+      @if (friendNotificationsError(); as err) {
+        <p class="profile-friends-error">{{ err }}</p>
+      }
+
+      <ul class="profile-notification-list">
+        @for (notification of friendNotifications(); track trackNotification($index, notification)) {
+          <li class="profile-notification-row">
+            <div class="profile-notification-main">
+              <span class="profile-notification-user">
+                {{ notification.from_user_name || notification.from_user_email }}
+              </span>
+              <span class="profile-notification-email">{{ notification.from_user_email }}</span>
+            </div>
+            <div class="profile-notification-actions">
+              <button
+                type="button"
+                class="profile-notification-button profile-notification-button--accept"
+                [disabled]="respondingNotificationId() === notification.from_user_id"
+                (click)="acceptFriendRequest(notification)"
+              >
+                Aceptar
+              </button>
+              <button
+                type="button"
+                class="profile-notification-button profile-notification-button--reject"
+                [disabled]="respondingNotificationId() === notification.from_user_id"
+                (click)="rejectFriendRequest(notification)"
+              >
+                Rechazar
+              </button>
+            </div>
+          </li>
+        } @empty {
+          <li class="profile-notification-empty">No tienes solicitudes pendientes.</li>
+        }
+      </ul>
+    </section>
 
     <div class="profile-reminder-wrap">
       <button type="button" class="profile-reminder" (click)="onReminder()">

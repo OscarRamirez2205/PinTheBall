@@ -2,7 +2,6 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -28,9 +27,7 @@ export class Login {
     this.errorMessage.set('');
     
     try {
-      await firstValueFrom(
-        this.authService.login(this.credentials.email.trim(), this.credentials.password),
-      );
+      await this.authService.login(this.credentials.email.trim(), this.credentials.password);
       const paramUrl = this.route.snapshot.queryParamMap.get('returnUrl');
       const urlVolver =
         paramUrl && paramUrl.startsWith('/') && !paramUrl.startsWith('//') ? paramUrl : '/profile';

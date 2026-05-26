@@ -2,7 +2,6 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -53,14 +52,12 @@ export class Register {
 
     this.submitting.set(true);
     try {
-      await firstValueFrom(
-        this.auth.register({
-          name,
-          email,
-          password: this.form.password,
-          password_confirmation: this.form.passwordConfirm,
-        }),
-      );
+      await this.auth.register({
+        name,
+        email,
+        password: this.form.password,
+        password_confirmation: this.form.passwordConfirm,
+      });
       await this.router.navigateByUrl('/profile');
     } catch (error: unknown) {
       const texto = this.mensajeErrorApi(error);

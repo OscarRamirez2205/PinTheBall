@@ -1,9 +1,8 @@
 import { Injectable, inject, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
 import { API_URL } from '../config/api-url';
 import { ShopWalletService } from '../shop/shop-wallet.service';
+import { apiFetch } from '../shared/api-fetch';
 
 export interface AuthUser {
   id: number;
@@ -26,7 +25,6 @@ const USER_KEY = 'ptb_auth_user';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly http = inject(HttpClient);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly shopWallet = inject(ShopWalletService);
   private readonly sessionPresent = signal(false);
@@ -50,27 +48,29 @@ export class AuthService {
 
   readonly apiBaseUrl = API_URL;
 
-  login(email: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${API_URL}/login`, { email, password }).pipe(
-      tap((res) => {
-        this.setToken(res.token);
-        this.setUser(res.user);
-      }),
-    );
+  async login(email: string, password: string): Promise<LoginResponse> {
+    const res = await apiFetch<LoginResponse>(`${API_URL}/login`, {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    this.setToken(res.token);
+    this.setUser(res.user);
+    return res;
   }
 
-  register(payload: {
+  async register(payload: {
     name: string;
     email: string;
     password: string;
     password_confirmation: string;
-  }): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${API_URL}/register`, payload).pipe(
-      tap((res) => {
-        this.setToken(res.token);
-        this.setUser(res.user);
-      }),
-    );
+  }): Promise<LoginResponse> {
+    const res = await apiFetch<LoginResponse>(`${API_URL}/register`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    this.setToken(res.token);
+    this.setUser(res.user);
+    return res;
   }
 
   logout(): void {
