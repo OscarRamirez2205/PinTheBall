@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/games/ranking', [GameController::class, 'ranking']);
+Route::get('/games/ranking/weekly', [GameController::class, 'weeklyRanking']);
 Route::get('/games/user/{id}', [GameController::class, 'userGames']);
 Route::apiResource('games', GameController::class);
 

@@ -12,6 +12,7 @@ class Ball extends Model
     protected $fillable = [
         'name',
         'subname',
+        'texture_slug',
         'price',
         'deal_price',
     ];

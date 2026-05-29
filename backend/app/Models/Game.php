@@ -11,6 +11,7 @@ class Game extends Model
 
     protected $fillable = [
         'player_id',
+        'guest_name',
         'score',
         'duration',
         'played_at',
