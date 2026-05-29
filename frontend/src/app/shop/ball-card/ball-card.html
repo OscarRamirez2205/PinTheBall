@@ -1,27 +1,29 @@
-<article class="ball-card" [class.ball-card--owned]="owned()">
-  <header class="ball-card-name">{{ skin().name }}</header>
-
-  <div
-    class="ball-card-ball"
-    role="img"
-    [attr.aria-label]="'Vista previa: ' + skin().name"
-    [style.--ball-preview]="skin().preview"
-  ></div>
-
-  <div class="ball-card-row">
-    @if (!owned()) {
-      @if (dealPrice() !== undefined && dealPrice()! < skin().price) {
-        <span class="ball-card-price ball-card-price--old">{{ skin().price }}</span>
-      }
-      @if (effectivePrice() > 0) {
-        <span class="ball-card-price">{{ effectivePrice() }} 🪙</span>
-      } @else {
-        <span class="ball-card-price ball-card-price--free">Gratis</span>
-      }
-    }
-  </div>
-
-  <button type="button" class="ball-card-buy" [disabled]="isDisabled()" (click)="onBuy()">
-    {{ label() }}
-  </button>
-</article>
+<article class="ball-card" [class.ball-card--owned]="owned()">
+  <header class="ball-card-name">{{ skin().name }}</header>
+
+  <img
+    class="ball-card-ball"
+    [src]="skin().preview"
+    [alt]="'Vista previa: ' + skin().name"
+    width="120"
+    height="120"
+    loading="lazy"
+  />
+
+  <div class="ball-card-row">
+    @if (!owned()) {
+      @if (dealPrice() !== undefined && dealPrice()! < skin().price) {
+        <span class="ball-card-price ball-card-price--old">{{ skin().price }}</span>
+      }
+      @if (effectivePrice() > 0) {
+        <span class="ball-card-price">{{ effectivePrice() }} 🪙</span>
+      } @else {
+        <span class="ball-card-price ball-card-price--free">Gratis</span>
+      }
+    }
+  </div>
+
+  <button type="button" class="ball-card-buy" [disabled]="isDisabled()" (click)="onBuy()">
+    {{ label() }}
+  </button>
+</article>

@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { API_URL } from '../config/api-url';
 import { AuthService } from '../services/auth.service';
 import { SelectedBallService } from '../services/selected-ball.service';
-import { ballPreviewGradient } from '../shared/ball-preview';
+import { ballPreviewImage } from '../shared/ball-preview';
 import {currentPlayStreak, gamesToDaySet, lastNDaysPlayFlags, longestPlayStreak,} from './profile.logic';/** Stats del usuario */
 import { apiFetch } from '../shared/api-fetch';
 
@@ -30,6 +30,7 @@ export interface ApiBall {
   id: number;
   name: string;
   subname: string | null;
+  texture_slug: string | null;
   price: number;
   deal_price?: number | null;
 }
@@ -111,12 +112,15 @@ export class Profile {
     void this.loadProfileData(sesion.id);
   }
 
-  gradientFor(ballId: number): string {
-    return ballPreviewGradient(ballId);
+  previewFor(ball: ApiBall): string {
+    return ballPreviewImage(ball.texture_slug);
   }
 
-  selectBall(id: number): void {
-    this.selectedBallSvc.selectBall(id);
+  selectBall(ball: ApiBall): void {
+    if (!ball.texture_slug) {
+      return;
+    }
+    this.selectedBallSvc.selectBall(ball.id, ball.texture_slug);
   }
 
   onReminder(): void {
@@ -169,6 +173,7 @@ export class Profile {
       this.user.set(perfil);
       this.games.set(partidas);
       this.balls.set(bolas);
+      this.selectedBallSvc.syncOwnedBalls(bolas);
       this.loading.set(false);
       await Promise.all([this.loadFriendLeaderboard(), this.loadFriendNotifications()]);
     } catch {

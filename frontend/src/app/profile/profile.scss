@@ -340,13 +340,14 @@
 }
 
 .profile-ball-preview {
-  --ball-preview: radial-gradient(circle at 32% 28%, #fff 0%, #ff00fa 35%, #0d0221 85%);
   aspect-ratio: 1;
   width: 100%;
   max-width: 100px;
+  height: auto;
   margin: 0 auto 0.55rem;
   border-radius: 50%;
-  background: var(--ball-preview);
+  object-fit: cover;
+  display: block;
   box-shadow:
     inset -6px -6px 16px rgba(0, 0, 0, 0.45),
     0 0 14px rgba($primary-color, 0.3);

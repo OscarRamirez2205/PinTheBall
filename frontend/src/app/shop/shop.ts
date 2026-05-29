@@ -6,10 +6,11 @@ import { Router } from '@angular/router';
 import { BallCard } from './ball-card/ball-card';
 import { formatCountdownHms, msUntilLocalMidnight } from '../shared/local-midnight';
 import type { ShopSkin } from './shop-skin.model';
+import { SelectedBallService } from '../services/selected-ball.service';
 import { ShopWalletService } from './shop-wallet.service';
 import { API_URL } from '../config/api-url';
 import { AuthService, type AuthUser } from '../services/auth.service';
-import { ballPreviewGradient } from '../shared/ball-preview';
+import { ballPreviewImage } from '../shared/ball-preview';
 import { fallbackDealPrice, featuredBallId } from './shop-featured';
 import { apiFetch } from '../shared/api-fetch';
 
@@ -17,6 +18,7 @@ interface ApiBallRow {
   id: number;
   name: string;
   subname: string | null;
+  texture_slug: string | null;
   price: number;
   deal_price?: number | null;
 }
@@ -34,6 +36,7 @@ export class Shop {
   private readonly router = inject(Router);
   private readonly clockTick = toSignal(interval(1000), { initialValue: 0 });
   readonly wallet = inject(ShopWalletService);
+  private readonly selectedBall = inject(SelectedBallService);
 
   readonly apiBalls = signal<ApiBallRow[]>([]);
   readonly loadError = signal<string | null>(null);
@@ -48,7 +51,7 @@ export class Shop {
       id: String(fila.id),
       name: fila.name,
       price: fila.price,
-      preview: ballPreviewGradient(fila.id),
+      preview: ballPreviewImage(fila.texture_slug),
     })),
   );
 
@@ -140,6 +143,7 @@ export class Shop {
       this.apiBalls.set([...bolasApi].sort((bolaA, bolaB) => bolaA.id - bolaB.id));
       const idsPoseidos = poseidas.map((bola) => bola.id);
       this.wallet.hydrate(perfil.wallet ?? 0, idsPoseidos);
+      this.selectedBall.syncOwnedBalls(poseidas);
     } catch {
       this.loadError.set('No se pudo cargar la tienda. Comprueba la API.');
     }

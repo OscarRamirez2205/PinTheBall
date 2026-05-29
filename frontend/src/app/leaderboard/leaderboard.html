@@ -2,6 +2,9 @@
   <header class="leaderboard-header">
     <h1 class="leaderboard-title">Clasificación</h1>
   </header>
+  @if (loadError(); as err) {
+    <p class="leaderboard-error">{{ err }}</p>
+  }
 
   <section class="leaderboard-countdown" aria-labelledby="lb-count-heading">
     <h2 id="lb-count-heading" class="leaderboard-countdown-heading">
@@ -27,7 +30,7 @@
         Semana actual: <strong>{{ weekRangeLabel() }}</strong> · Top 10
       </p>
       <ol class="leaderboard-list">
-        @for (item of weeklyItems; track trackWeekly($index, item)) {
+        @for (item of weeklyItems(); track trackWeekly($index, item)) {
           @if (item.kind === 'gap') {
             <li class="leaderboard-gap" role="separator" [attr.aria-label]="item.ariaLabel">
               ···
@@ -50,7 +53,7 @@
       <h2 id="lb-general-heading" class="leaderboard-panel-title">Leaderboard general</h2>
       <p class="leaderboard-panel-meta">Histórico · Top 10</p>
       <ol class="leaderboard-list">
-        @for (item of generalItems; track trackGeneral($index, item)) {
+        @for (item of generalItems(); track trackGeneral($index, item)) {
           @if (item.kind === 'gap') {
             <li class="leaderboard-gap" role="separator" [attr.aria-label]="item.ariaLabel">
               ···

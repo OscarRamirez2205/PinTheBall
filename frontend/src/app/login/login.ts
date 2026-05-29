@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { SelectedBallService } from '../services/selected-ball.service';
 
 @Component({
   selector: 'app-login',
@@ -13,6 +14,7 @@ import { AuthService } from '../services/auth.service';
 })
 export class Login {
   private readonly authService = inject(AuthService);
+  private readonly selectedBall = inject(SelectedBallService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -27,7 +29,8 @@ export class Login {
     this.errorMessage.set('');
     
     try {
-      await this.authService.login(this.credentials.email.trim(), this.credentials.password);
+      const res = await this.authService.login(this.credentials.email.trim(), this.credentials.password);
+      await this.selectedBall.onSessionStarted(res.user.id);
       const paramUrl = this.route.snapshot.queryParamMap.get('returnUrl');
       const urlVolver =
         paramUrl && paramUrl.startsWith('/') && !paramUrl.startsWith('//') ? paramUrl : '/profile';

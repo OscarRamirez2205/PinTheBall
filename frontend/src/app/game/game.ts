@@ -2,14 +2,26 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  NgZone,
   OnDestroy,
   PLATFORM_ID,
   ViewChild,
   inject,
+  signal,
 } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { DecimalPipe, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { DailyPlayLockService } from '../services/daily-play-lock.service';
+import { AuthService } from '../services/auth.service';
+import { SelectedBallService } from '../services/selected-ball.service';
+import { ShopWalletService } from '../shop/shop-wallet.service';
+import { applyBallMaterialToMesh, getBallPbrMaterial } from '../shared/ball-babylon-texture';
+import { bindAudioUnlock, createGameSounds, type GameSounds } from '../shared/game-audio';
+import { launchGameConfetti } from '../shared/game-confetti';
+import { setupSkyPano } from '../shared/game-skybox';
+import { API_URL } from '../config/api-url';
+import { apiFetch } from '../shared/api-fetch';
+import { coinsFromScore } from '../shared/game-rewards';
 import * as BABYLON from '@babylonjs/core';
 import * as GUI from '@babylonjs/gui';
 import '@babylonjs/loaders/glTF';
@@ -17,9 +29,15 @@ import { ImportMeshAsync } from '@babylonjs/core/Loading/sceneLoader';
 import HavokPhysics from '@babylonjs/havok';
 import { HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 
+interface SavedGameResponse {
+  id: number;
+  coins_earned?: number;
+  wallet?: number;
+}
+
 @Component({
   selector: 'app-game',
-  imports: [],
+  imports: [DecimalPipe],
   templateUrl: './game.html',
   styleUrl: './game.scss',
 })
@@ -27,21 +45,144 @@ import { HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 export class Game implements AfterViewInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly dailyLock = inject(DailyPlayLockService);
+  private readonly auth = inject(AuthService);
+  private readonly selectedBall = inject(SelectedBallService);
+  private readonly shopWallet = inject(ShopWalletService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly ngZone = inject(NgZone);
   private engine: BABYLON.Engine | null = null;
   private scene: BABYLON.Scene | null = null;
+  private gameSounds: GameSounds | null = null;
   private resizeHandler = () => this.engine?.resize();
+  readonly gameOverModalOpen = signal(false);
+  readonly gameOverIsGuest = signal(false);
+  readonly gameOverScore = signal(0);
+  readonly coinsEarned = signal(0);
+  readonly guestNameInput = signal('');
+  readonly guestNameError = signal('');
+  readonly guestSavingName = signal(false);
+  private pendingGuestGameId: number | null = null;
 
   @ViewChild('renderCanvas', { static: true })
   private renderCanvasRef!: ElementRef<HTMLCanvasElement>;
+
+  private async saveFinishedGame(
+    finalScore: number,
+    durationSeconds: number,
+  ): Promise<SavedGameResponse> {
+    const user = this.auth.getUser();
+    return apiFetch<SavedGameResponse>(`${API_URL}/games`, {
+      method: 'POST',
+      body: JSON.stringify({
+        player_id: user?.id ?? null,
+        score: finalScore,
+        duration: durationSeconds,
+      }),
+    });
+  }
+
+  private openGameOverModal(
+    finalScore: number,
+    options: { isGuest: boolean; gameId: number | null; coinsEarned: number; wallet?: number },
+  ): void {
+    this.gameOverScore.set(Math.floor(Math.max(0, finalScore)));
+    this.coinsEarned.set(options.coinsEarned);
+    this.gameOverIsGuest.set(options.isGuest);
+    this.pendingGuestGameId = options.gameId;
+    this.guestNameInput.set('');
+    this.guestNameError.set('');
+    this.gameOverModalOpen.set(true);
+    this.engine?.stopRenderLoop();
+    launchGameConfetti();
+
+    if (options.wallet !== undefined) {
+      this.shopWallet.setWalletBalance(options.wallet);
+      const user = this.auth.getUser();
+      if (user) {
+        this.auth.setUser({ ...user, wallet: options.wallet });
+      }
+    }
+  }
+
+  private async onGameOver(finalScore: number, durationSeconds: number): Promise<void> {
+    const user = this.auth.getUser();
+    const isGuest = !user?.id;
+    const fallbackCoins = coinsFromScore(finalScore);
+
+    try {
+      const saved = await this.saveFinishedGame(finalScore, durationSeconds);
+      const coinsEarned = saved.coins_earned ?? fallbackCoins;
+
+      this.ngZone.run(() => {
+        this.openGameOverModal(finalScore, {
+          isGuest,
+          gameId: isGuest ? saved.id : null,
+          coinsEarned,
+          wallet: saved.wallet,
+        });
+      });
+    } catch {
+      this.ngZone.run(() => {
+        this.openGameOverModal(finalScore, {
+          isGuest,
+          gameId: null,
+          coinsEarned: fallbackCoins,
+        });
+        this.guestNameError.set('No se pudo guardar la partida.');
+      });
+    }
+  }
+
+  dismissGameOverModal(): void {
+    this.gameOverModalOpen.set(false);
+    this.finishDailyRun();
+  }
+
+  onGuestNameInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.guestNameInput.set(value);
+  }
+
+  async submitGuestName(): Promise<void> {
+    const normalized = this.guestNameInput().trim().toUpperCase();
+    if (!/^[A-Z]{3}$/.test(normalized)) {
+      this.guestNameError.set('Introduce un nombre de exactamente 3 letras.');
+      return;
+    }
+    if (this.pendingGuestGameId === null) {
+      this.guestNameError.set('No hay partida pendiente para actualizar.');
+      return;
+    }
+
+    this.guestSavingName.set(true);
+    this.guestNameError.set('');
+    try {
+      await apiFetch(`${API_URL}/games/${this.pendingGuestGameId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ guest_name: normalized }),
+      });
+      this.gameOverModalOpen.set(false);
+      this.pendingGuestGameId = null;
+      this.finishDailyRun();
+    } catch {
+      this.guestNameError.set('No se pudo actualizar el nombre de la partida.');
+    } finally {
+      this.guestSavingName.set(false);
+    }
+  }
 
   ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
 
+    const user = this.auth.getUser();
+    if (user?.id) {
+      void this.selectedBall.refreshOwnedBalls(user.id);
+    }
+
     const canvas = this.renderCanvasRef.nativeElement;
-    this.engine = new BABYLON.Engine(canvas, true);
+    this.engine = new BABYLON.Engine(canvas, true, { audioEngine: true });
     this.scene = this.createScene(this.engine, canvas);
 
     this.engine.runRenderLoop(() => {
@@ -57,11 +198,13 @@ export class Game implements AfterViewInit, OnDestroy {
     }
 
     window.removeEventListener('resize', this.resizeHandler);
+    this.gameSounds?.dispose();
+    this.gameSounds = null;
     this.scene?.dispose();
     this.engine?.dispose();
   }
 
-  createScene = function (engine: BABYLON.Engine, canvas: HTMLCanvasElement): BABYLON.Scene {
+  createScene = (engine: BABYLON.Engine, canvas: HTMLCanvasElement): BABYLON.Scene => {
       const scene = new BABYLON.Scene(engine);
 
       const camera = new BABYLON.FreeCamera("camera1", 
@@ -85,6 +228,7 @@ export class Game implements AfterViewInit, OnDestroy {
       .then((havokInstance) => {
         const hk = new HavokPlugin(true, havokInstance);
         scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
+        void setupSkyPano(scene);
         return ImportMeshAsync("./resources/object/pinball/Pinball.glb", scene);
       })
       .then((result) => {
@@ -92,9 +236,15 @@ export class Game implements AfterViewInit, OnDestroy {
         root.scaling = new BABYLON.Vector3(-6, 6, 6);
         root.position.y = -4;
 
+        const sfx = createGameSounds();
+        this.gameSounds = sfx;
+        bindAudioUnlock(canvas, sfx);
+
         //Sistema de vidas y puntuacion
         let score = 0;
         let livesLeft = 3;
+        const runStartedAtMs = Date.now();
+        let gameOverHandled = false;
         const maxScore = 99_999_999;
         const maxLives = 3;
         const scoreUi = GUI.AdvancedDynamicTexture.CreateFullscreenUI('score-ui', true, scene);
@@ -331,6 +481,7 @@ export class Game implements AfterViewInit, OnDestroy {
                 const impulse = launchDirection.scale(pendingLaunchStrength);
                 activeBallBody.applyImpulse(impulse, activeBall.getAbsolutePosition());
                 pendingLaunchStrength = 0;
+                sfx.playPlunger();
 
               } else if (currentPullDistance <= 0.001) {
                 pendingLaunchStrength = 0;
@@ -339,7 +490,7 @@ export class Game implements AfterViewInit, OnDestroy {
           });
         }
 
-        // Flipper izquierdo
+        // Flippers
         if (flipperLeft && flipperRight && leftPivot && rightPivot) {
           const flipperLeftAggregate = new BABYLON.PhysicsAggregate(
             flipperLeft,
@@ -380,6 +531,7 @@ export class Game implements AfterViewInit, OnDestroy {
             if (keyboardInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN) {
               keyboardInfo.event.preventDefault();
               isLeftFlipperPressed = true;
+              sfx.playFlipper();
             } else if (keyboardInfo.type === BABYLON.KeyboardEventTypes.KEYUP) {
               keyboardInfo.event.preventDefault();
               isLeftFlipperPressed = false;
@@ -451,6 +603,7 @@ export class Game implements AfterViewInit, OnDestroy {
             if (keyboardInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN) {
               keyboardInfo.event.preventDefault();
               isRightFlipperPressed = true;
+              sfx.playFlipper();
             } else if (keyboardInfo.type === BABYLON.KeyboardEventTypes.KEYUP) {
               keyboardInfo.event.preventDefault();
               isRightFlipperPressed = false;
@@ -512,6 +665,7 @@ export class Game implements AfterViewInit, OnDestroy {
           score = BABYLON.Scalar.Clamp(score + bumperPoints, 0, maxScore);
           lastScoredBumperName = bumperName;
           updateScoreText();
+          sfx.playBumper();
           console.log(`[TRIGGER] Bumper hit: ${bumperName} (+${bumperPoints}) => ${score}`);
         };
 
@@ -536,6 +690,13 @@ export class Game implements AfterViewInit, OnDestroy {
           const pendingBumperHits = new Set<string>();
           const bumperHitCooldownFramesByName = new Map<string, number>();
           const touchingBumpers = new Set<string>();
+          const applySelectedBallTexture = (mesh: BABYLON.Mesh): void => {
+            const slug = this.selectedBall.activeTextureSlug();
+            void getBallPbrMaterial(slug, scene).then((material) => {
+              applyBallMaterialToMesh(mesh, material);
+            });
+          };
+
           const createNewBall = () => {
             if (activeBall) {
               activeBall.dispose();
@@ -551,6 +712,7 @@ export class Game implements AfterViewInit, OnDestroy {
             spawnedBall.isVisible = true;
             spawnedBall.isPickable = true;
             spawnedBall.setAbsolutePosition(spawnPointDown);
+            applySelectedBallTexture(spawnedBall);
 
             new BABYLON.PhysicsAggregate(
               spawnedBall,
@@ -593,14 +755,45 @@ export class Game implements AfterViewInit, OnDestroy {
           const ballCenter = BABYLON.Vector3.Zero();
           const bumperCenter = BABYLON.Vector3.Zero();
           let bottomOutCooldownFrames = 0;
-          
+          let tableBaseMinY: number | null = null;
+          if (tableGround) {
+            tableGround.computeWorldMatrix(true);
+            tableBaseMinY = tableGround.getBoundingInfo().boundingBox.minimumWorld.y;
+          }
+
+          const isBallBelowMachineBase = (): boolean => {
+            if (tableBaseMinY === null || !activeBall) {
+              return false;
+            }
+            activeBall.computeWorldMatrix(true);
+            const ballY = activeBall.getBoundingInfo().boundingSphere.centerWorld.y;
+            const ballRadius = activeBall.getBoundingInfo().boundingSphere.radiusWorld;
+            return ballY + ballRadius < tableBaseMinY - 0.05;
+          };
+
+          const respawnBallWithoutLifeLoss = () => {
+            if (gameOverHandled || livesLeft <= 0) {
+              return;
+            }
+            shouldRespawnBall = false;
+            createNewBall();
+            if (activeBallBody) {
+              activeBallBody.setLinearVelocity(zeroVelocity);
+              activeBallBody.setAngularVelocity(zeroVelocity);
+            }
+          };
+
           const loseLifeAndRespawn = () => {
-            if (livesLeft <= 0) {
+            if (livesLeft <= 0 || gameOverHandled) {
               return;
             }
             livesLeft = Math.max(0, livesLeft - 1);
             updateLivesUi();
             if (livesLeft <= 0) {
+              sfx.playConfetti();
+              gameOverHandled = true;
+              const durationSeconds = Math.max(1, Math.floor((Date.now() - runStartedAtMs) / 1000));
+              void this.onGameOver(score, durationSeconds);
               if (activeBall) {
                 activeBall.dispose();
                 activeBall = null;
@@ -608,6 +801,7 @@ export class Game implements AfterViewInit, OnDestroy {
               }
               return;
             }
+            sfx.playLoseLife();
             createNewBall();
             if (activeBallBody) {
               activeBallBody.setLinearVelocity(zeroVelocity);
@@ -662,6 +856,10 @@ export class Game implements AfterViewInit, OnDestroy {
 
             if (bottomOutCooldownFrames > 0) {
               bottomOutCooldownFrames--;
+            } else if (isBallBelowMachineBase()) {
+              respawnBallWithoutLifeLoss();
+              bottomOutCooldownFrames = 25;
+              return;
             } else if (shouldRespawnBall || (bottomOutMesh && activeBall.intersectsMesh(bottomOutMesh, true))) {
               shouldRespawnBall = false;
               loseLifeAndRespawn();

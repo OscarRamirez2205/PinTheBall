@@ -30,4 +30,8 @@ export class ShopWalletService {
     this._coins.set(Math.max(0, userWallet));
     this._ownedBallIds.update((s) => new Set(s).add(ballId));
   }
+
+  setWalletBalance(wallet: number): void {
+    this._coins.set(Math.max(0, wallet));
+  }
 }

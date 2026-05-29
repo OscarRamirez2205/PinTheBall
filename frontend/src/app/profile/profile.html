@@ -74,18 +74,20 @@
               type="button"
               class="profile-ball"
               [class.profile-ball--selected]="selectedBallId() === ball.id"
-              (click)="selectBall(ball.id)"
+              (click)="selectBall(ball)"
             >
               <span class="profile-ball-name">{{ ball.name }}</span>
               @if (ball.subname) {
                 <span class="profile-ball-sub">{{ ball.subname }}</span>
               }
-              <span
+              <img
                 class="profile-ball-preview"
-                role="img"
-                [attr.aria-label]="'Vista previa: ' + ball.name"
-                [style.--ball-preview]="gradientFor(ball.id)"
-              ></span>
+                [src]="previewFor(ball)"
+                [alt]="'Vista previa: ' + ball.name"
+                width="100"
+                height="100"
+                loading="lazy"
+              />
               <span class="profile-ball-cta">
                 @if (selectedBallId() === ball.id) {
                   Skin activa

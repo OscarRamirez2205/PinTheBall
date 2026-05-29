@@ -1,5 +1,57 @@
 <canvas #renderCanvas></canvas>
 
+@if (gameOverModalOpen()) {
+  <div class="guest-name-modal-backdrop">
+    <div class="guest-name-modal" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
+      <h2 id="game-over-title">Partida terminada</h2>
+
+      <dl class="game-over-stats">
+        <div class="game-over-stats-row">
+          <dt>Puntuación</dt>
+          <dd>{{ gameOverScore() | number:'1.0-0' }}</dd>
+        </div>
+      @if (gameOverIsGuest()) {
+        <p class="game-over-coins-guest-note">Si quieres conseguir monedas para poder comprar skins, crea una cuenta.</p>
+      }
+        <div class="game-over-stats-row">
+          <dt>Monedas ganadas</dt>
+          <dd class="game-over-coins">{{ coinsEarned() | number:'1.0-0' }} 🪙</dd>
+        </div>
+      </dl>
+
+
+      @if (gameOverIsGuest()) {
+        <p>Introduce un nombre de 3 letras para registrar tu puntuación.</p>
+        <input
+          type="text"
+          maxlength="3"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false"
+          [value]="guestNameInput()"
+          (input)="onGuestNameInput($event)"
+          (keyup.enter)="submitGuestName()"
+          placeholder="ABC"
+        />
+        @if (guestNameError(); as err) {
+          <p class="guest-name-modal-error">{{ err }}</p>
+        }
+        <button type="button" [disabled]="guestSavingName()" (click)="submitGuestName()">
+          @if (guestSavingName()) {
+            Guardando...
+          } @else {
+            Guardar nombre
+          }
+        </button>
+      } @else {
+        <button type="button" class="game-over-continue" (click)="dismissGameOverModal()">
+          Continuar
+        </button>
+      }
+    </div>
+  </div>
+}
+
 
 <!-- <div class="game">
   <button type="button" (click)="finishDailyRun()">

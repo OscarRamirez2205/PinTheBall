@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { SelectedBallService } from '../services/selected-ball.service';
 
 @Component({
   selector: 'app-register',
@@ -13,6 +14,7 @@ import { AuthService } from '../services/auth.service';
 })
 export class Register {
   private readonly auth = inject(AuthService);
+  private readonly selectedBall = inject(SelectedBallService);
   private readonly router = inject(Router);
 
   readonly errorMessage = signal('');
@@ -52,12 +54,13 @@ export class Register {
 
     this.submitting.set(true);
     try {
-      await this.auth.register({
+      const res = await this.auth.register({
         name,
         email,
         password: this.form.password,
         password_confirmation: this.form.passwordConfirm,
       });
+      await this.selectedBall.onSessionStarted(res.user.id);
       await this.router.navigateByUrl('/profile');
     } catch (error: unknown) {
       const texto = this.mensajeErrorApi(error);
