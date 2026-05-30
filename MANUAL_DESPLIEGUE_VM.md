@@ -420,6 +420,19 @@ pwd
 ls
 ```
 
+Tambien se comprueba que existen los archivos necesarios para Docker:
+
+```bash
+ls docker-compose.yml
+ls backend/Dockerfile
+ls backend/.dockerignore
+ls frontend/Dockerfile
+ls frontend/.dockerignore
+ls docker/nginx/default.conf
+ls backend/composer.lock
+ls frontend/package-lock.json
+```
+
 Tambien se crea el archivo `.env` del backend a partir del ejemplo:
 
 ```bash
