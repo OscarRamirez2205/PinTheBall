@@ -210,6 +210,8 @@ Tambien se puede probar a reiniciar la maquina despues de modificar `/etc/networ
 sudo reboot
 ```
 
+Si durante las pruebas se accede por IP y Angular muestra un mensaje parecido a `Blocked request. This host is not allowed`, hay que comprobar que el archivo `frontend/Dockerfile` arranca Angular con la opcion `--allowed-hosts all` y reconstruir el contenedor del frontend.
+
 ## 3.2.3. Instalacion de Docker
 
 Se instala Docker desde los repositorios de Debian:
@@ -510,21 +512,61 @@ Contrasena: 123456
 
 ## 3.10. Configuracion DNS en el portatil
 
-Para que el portatil pueda resolver el dominio `pintheball`, debe usar como servidor DNS la IP de la maquina virtual Debian en la red solo-anfitrion.
+En el apartado anterior se ha configurado `dnsmasq` dentro de Debian. Eso significa que la maquina virtual ya sabe resolver el dominio `pintheball`.
 
-En Windows se configura desde:
+Antes de cambiar nada en Windows, se puede comprobar desde el portatil que el DNS de Debian responde. Para ello se indica explicitamente que el servidor DNS es la IP de la maquina virtual:
 
-```text
-Panel de control > Red e Internet > Conexiones de red > Propiedades del adaptador > IPv4
+```powershell
+nslookup pintheball 192.168.56.101
 ```
 
-En DNS preferido se escribe la IP de la maquina virtual:
+La respuesta debe devolver:
+
+```text
+Name: pintheball
+Address: 192.168.56.101
+```
+
+Si este comando no devuelve la IP correcta, el problema esta en `dnsmasq` o en la conexion con la maquina virtual. Si este comando funciona, entonces el DNS de Debian esta bien configurado.
+
+Para que funcione escribiendo solamente `nslookup pintheball` o abriendo `http://pintheball` en el navegador, falta que Windows pregunte a ese DNS por defecto.
+
+Para ello, en Windows se configura el adaptador de red de VirtualBox:
+
+```text
+Panel de control
+Red e Internet
+Centro de redes y recursos compartidos
+Cambiar configuracion del adaptador
+```
+
+En esa pantalla debe aparecer un adaptador llamado parecido a:
+
+```text
+VirtualBox Host-Only Network
+```
+
+Se hace clic derecho sobre ese adaptador y se entra en:
+
+```text
+Propiedades > Protocolo de Internet version 4 (TCP/IPv4) > Propiedades
+```
+
+En la parte inferior se selecciona:
+
+```text
+Usar las siguientes direcciones de servidor DNS
+```
+
+En `Servidor DNS preferido` se escribe la IP de la maquina virtual:
 
 ```text
 192.168.56.101
 ```
 
-Despues se comprueba desde el portatil:
+Con esto, Windows preguntara a la maquina virtual cuando necesite resolver el dominio `pintheball`.
+
+Despues se abre una terminal de Windows y se comprueba:
 
 ```powershell
 nslookup pintheball
@@ -535,6 +577,8 @@ La respuesta debe devolver la IP de la maquina virtual:
 ```text
 192.168.56.101
 ```
+
+Si en la salida aparece `Servidor: dns.google` o `Address: 8.8.8.8`, significa que Windows todavia esta usando el DNS de Google y no el DNS de Debian. En ese caso hay que revisar que el DNS preferido se haya cambiado en el adaptador `VirtualBox Host-Only Network`.
 
 ## 3.11. Acceso a la aplicacion
 
