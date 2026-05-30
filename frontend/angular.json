@@ -36,7 +36,12 @@
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {
-              "allowedHosts": []
+              "allowedHosts": [
+                "192.168.56.101",
+                "pintheball",
+                "frontend",
+                "localhost"
+              ]
             },
             "ssr": {
               "entry": "src/server.ts"
