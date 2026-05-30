@@ -79,6 +79,14 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "allowedHosts": [
+              "192.168.56.101",
+              "pintheball",
+              "frontend",
+              "localhost"
+            ]
+          },
           "configurations": {
             "production": {
               "buildTarget": "frontend:build:production"

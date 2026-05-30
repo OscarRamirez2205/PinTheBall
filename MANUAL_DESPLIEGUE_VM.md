@@ -210,7 +210,7 @@ Tambien se puede probar a reiniciar la maquina despues de modificar `/etc/networ
 sudo reboot
 ```
 
-Si durante las pruebas se accede por IP y Angular muestra un mensaje parecido a `Blocked request. This host is not allowed`, hay que comprobar en `frontend/angular.json` que la opcion `security.allowedHosts` incluye `192.168.56.101`, `pintheball`, `frontend` y `localhost`. Despues se reconstruye el contenedor del frontend.
+Si durante las pruebas se accede por IP y Angular muestra un mensaje parecido a `Blocked request. This host is not allowed`, hay que comprobar en `frontend/angular.json` que el target `serve` contiene la opcion `allowedHosts` con `192.168.56.101`, `pintheball`, `frontend` y `localhost`. Despues se reconstruye el contenedor del frontend.
 
 ## 3.2.3. Instalacion de Docker
 
