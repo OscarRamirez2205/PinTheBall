@@ -1,0 +1,91 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: pintheball-nginx
+    restart: unless-stopped
+    depends_on:
+      - frontend
+      - backend
+      - phpmyadmin
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+
+  mysql:
+    image: mysql:8.4
+    container_name: pintheball-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: pintheball
+      MYSQL_USER: pintheball
+      MYSQL_PASSWORD: pintheball
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: pintheball-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+      PMA_ABSOLUTE_URI: http://${DNS_DOMAIN:-pintheball}/phpmyadmin/
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pintheball-backend
+    restart: unless-stopped
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://${DNS_DOMAIN:-pintheball}
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: pintheball
+      DB_USERNAME: pintheball
+      DB_PASSWORD: pintheball
+      SESSION_DRIVER: file
+      CACHE_STORE: file
+      QUEUE_CONNECTION: sync
+      SANCTUM_STATEFUL_DOMAINS: ${DNS_DOMAIN:-pintheball}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./backend:/var/www/html
+      - backend_vendor:/var/www/html/vendor
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pintheball-frontend
+    restart: unless-stopped
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      NG_CLI_ANALYTICS: "false"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+
+volumes:
+  mysql_data:
+  backend_vendor:
+  frontend_node_modules:
