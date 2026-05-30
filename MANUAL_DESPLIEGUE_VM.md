@@ -413,6 +413,19 @@ http://pintheball
 
 ## 3.7. Levantar los contenedores
 
+Antes de levantar los contenedores, se comprueba que se esta en la raiz del proyecto:
+
+```bash
+pwd
+ls
+```
+
+Tambien se crea el archivo `.env` del backend a partir del ejemplo:
+
+```bash
+cp backend/.env.example backend/.env
+```
+
 Desde la raiz del proyecto se ejecuta:
 
 ```bash
@@ -437,13 +450,7 @@ Los contenedores esperados son:
 
 ## 3.8. Inicializacion de Laravel y MySQL
 
-El contenedor del backend esta preparado para realizar automaticamente las tareas iniciales de Laravel:
-
-- Crea el archivo `.env` de Laravel si no existe.
-- Instala las dependencias de Composer.
-- Genera la clave `APP_KEY`.
-- Espera a que MySQL este disponible.
-- Ejecuta las migraciones.
+Una vez levantados los contenedores, se preparan manualmente las tareas iniciales de Laravel.
 
 La configuracion de MySQL es:
 
@@ -457,6 +464,18 @@ Host interno de MySQL: mysql
 ```
 
 El host `mysql` solo se usa dentro de Docker. Desde el navegador no se accede directamente a MySQL.
+
+Primero se genera la clave de Laravel:
+
+```bash
+docker-compose exec backend php artisan key:generate
+```
+
+Por ultimo se ejecutan las migraciones:
+
+```bash
+docker-compose exec backend php artisan migrate --force
+```
 
 ## 3.9. Cargar datos de prueba
 
