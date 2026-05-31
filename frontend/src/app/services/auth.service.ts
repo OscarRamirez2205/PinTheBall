@@ -18,6 +18,7 @@ export interface LoginResponse {
   user: AuthUser;
   token: string;
   token_type: string;
+  admin_url?: string | null;
 }
 
 const TOKEN_KEY = 'ptb_auth_token';
@@ -47,6 +48,14 @@ export class AuthService {
   }
 
   readonly apiBaseUrl = API_URL;
+
+  backendUrl(path: string): string {
+    if (!API_URL.startsWith('http')) {
+      return path;
+    }
+
+    return `${new URL(API_URL).origin}${path}`;
+  }
 
   async login(email: string, password: string): Promise<LoginResponse> {
     const res = await apiFetch<LoginResponse>(`${API_URL}/login`, {

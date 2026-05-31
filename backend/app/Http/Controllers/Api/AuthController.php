@@ -64,11 +64,28 @@ class AuthController extends Controller
         $user->tokens()->delete();
         $token = $user->createToken('api')->plainTextToken;
 
-        return response()->json([
+        $response = response()->json([
             'user' => $user,
             'token' => $token,
             'token_type' => 'Bearer',
+            'admin_url' => $user->role === 'admin' ? '/admin/dashboard' : null,
         ]);
+
+        if ($user->role === 'admin') {
+            return $response->cookie(
+                'ptb_admin_token',
+                $token,
+                60 * 8,
+                '/',
+                null,
+                false,
+                true,
+                false,
+                'lax'
+            );
+        }
+
+        return $response->withoutCookie('ptb_admin_token', '/');
     }
 
     public function user(Request $request)

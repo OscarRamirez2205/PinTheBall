@@ -30,6 +30,11 @@ export class Login {
     
     try {
       const res = await this.authService.login(this.credentials.email.trim(), this.credentials.password);
+      if (res.user.role === 'admin' && res.admin_url) {
+        window.location.href = this.authService.backendUrl(res.admin_url);
+        return;
+      }
+
       await this.selectedBall.onSessionStarted(res.user.id);
       const paramUrl = this.route.snapshot.queryParamMap.get('returnUrl');
       const urlVolver =
