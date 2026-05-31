@@ -11,6 +11,7 @@ import { ShopWalletService } from './shop-wallet.service';
 import { API_URL } from '../config/api-url';
 import { AuthService, type AuthUser } from '../services/auth.service';
 import { ballPreviewImage } from '../shared/ball-preview';
+import { registerUploadedBallTextures } from '../shared/ball-textures.catalog';
 import { fallbackDealPrice, featuredBallId } from './shop-featured';
 import { apiFetch } from '../shared/api-fetch';
 
@@ -19,6 +20,7 @@ interface ApiBallRow {
   name: string;
   subname: string | null;
   texture_slug: string | null;
+  texture_asset_prefix?: string | null;
   price: number;
   deal_price?: number | null;
 }
@@ -139,6 +141,7 @@ export class Shop {
         apiFetch<ApiBallRow[]>(`${API_URL}/users/${userId}/balls`),
         apiFetch<AuthUser>(`${API_URL}/users/${userId}`),
       ]);
+      registerUploadedBallTextures([...bolasApi, ...poseidas]);
       this.auth.setUser(perfil);
       this.apiBalls.set([...bolasApi].sort((bolaA, bolaB) => bolaA.id - bolaB.id));
       const idsPoseidos = poseidas.map((bola) => bola.id);

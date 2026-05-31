@@ -19,6 +19,7 @@ class BallController extends Controller
             'name' => 'required|string|max:255',
             'subname' => 'nullable|string|max:255',
             'texture_slug' => 'nullable|string|max:64',
+            'texture_asset_prefix' => 'nullable|string|max:128',
             'price' => 'nullable|integer|min:0',
             'deal_price' => 'nullable|integer|min:0',
         ]);
@@ -39,6 +40,7 @@ class BallController extends Controller
             'name' => 'sometimes|string|max:255',
             'subname' => 'nullable|string|max:255',
             'texture_slug' => 'sometimes|nullable|string|max:64',
+            'texture_asset_prefix' => 'sometimes|nullable|string|max:128',
             'price' => 'sometimes|nullable|integer|min:0',
             'deal_price' => 'sometimes|nullable|integer|min:0',
         ]);

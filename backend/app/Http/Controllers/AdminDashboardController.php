@@ -7,9 +7,12 @@ use App\Models\Game;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Illuminate\Validation\ValidationException;
 
 class AdminDashboardController extends Controller
 {
@@ -132,7 +135,9 @@ class AdminDashboardController extends Controller
 
     public function storeBall(Request $request): RedirectResponse
     {
-        $data = $this->validateBall($request);
+        $data = $this->validateBall($request, true);
+        $data = array_merge($data, $this->storeTextureFiles($request, $data['texture_slug'] ?? null, $data['name']));
+
         Ball::create($data);
 
         return redirect()->route('admin.balls')->with('status', 'Bola añadida.');
@@ -147,7 +152,13 @@ class AdminDashboardController extends Controller
 
     public function updateBall(Request $request, Ball $ball): RedirectResponse
     {
-        $ball->fill($this->validateBall($request));
+        $data = $this->validateBall($request, false);
+
+        if ($this->hasTextureUploads($request)) {
+            $data = array_merge($data, $this->storeTextureFiles($request, $data['texture_slug'] ?? $ball->texture_slug, $data['name']));
+        }
+
+        $ball->fill($data);
         $ball->save();
 
         return redirect()->route('admin.balls.edit', $ball)->with('status', 'Bola actualizada.');
@@ -197,14 +208,123 @@ class AdminDashboardController extends Controller
         return redirect('/')->withoutCookie('ptb_admin_token', '/');
     }
 
-    private function validateBall(Request $request): array
+    private function validateBall(Request $request, bool $requiresTextures): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'name' => 'required|string|max:255',
             'subname' => 'nullable|string|max:255',
-            'texture_slug' => 'nullable|string|max:64',
+            'texture_slug' => ['nullable', 'string', 'max:64', 'regex:/^[a-z0-9-]+$/'],
             'price' => 'required|integer|min:0',
             'deal_price' => 'nullable|integer|min:0',
+            'texture_preview' => [$requiresTextures ? 'required' : 'sometimes', 'file', 'mimes:png', 'max:102400'],
+            'texture_base_color' => [$requiresTextures ? 'required' : 'sometimes', 'file', 'mimes:jpg,jpeg', 'max:102400'],
+            'texture_normal' => [$requiresTextures ? 'required' : 'sometimes', 'file', 'mimes:png', 'max:102400'],
+            'texture_metallic' => [$requiresTextures ? 'required' : 'sometimes', 'file', 'mimes:jpg,jpeg', 'max:102400'],
+            'texture_roughness' => [$requiresTextures ? 'required' : 'sometimes', 'file', 'mimes:jpg,jpeg', 'max:102400'],
+            'texture_ambient_occlusion' => [$requiresTextures ? 'required' : 'sometimes', 'file', 'mimes:jpg,jpeg', 'max:102400'],
+        ], [
+            'texture_slug.regex' => 'El slug de textura solo puede usar minúsculas, números y guiones.',
+            'texture_preview.required' => 'Debes subir la imagen preview de la bola.',
+            'texture_base_color.required' => 'Debes subir la textura BaseColor.',
+            'texture_normal.required' => 'Debes subir la textura Normal.',
+            'texture_metallic.required' => 'Debes subir la textura Metallic.',
+            'texture_roughness.required' => 'Debes subir la textura Roughness.',
+            'texture_ambient_occlusion.required' => 'Debes subir la textura AmbientOcclusion.',
         ]);
+
+        unset(
+            $data['texture_preview'],
+            $data['texture_base_color'],
+            $data['texture_normal'],
+            $data['texture_metallic'],
+            $data['texture_roughness'],
+            $data['texture_ambient_occlusion'],
+        );
+
+        return $data;
+    }
+
+    private function storeTextureFiles(Request $request, ?string $requestedSlug, string $ballName): array
+    {
+        $slug = $requestedSlug ?: Str::lower(Str::slug($ballName, ''));
+        if ($slug === '') {
+            throw ValidationException::withMessages([
+                'texture_slug' => 'No se ha podido generar el slug de textura.',
+            ]);
+        }
+
+        $files = $this->textureUploadFiles($request);
+
+        $targetRoot = $this->textureStorageRoot().DIRECTORY_SEPARATOR.$slug;
+        $twoKRoot = $targetRoot.DIRECTORY_SEPARATOR.'2K';
+
+        File::ensureDirectoryExists($targetRoot);
+        File::cleanDirectory($targetRoot);
+        File::ensureDirectoryExists($twoKRoot);
+
+        $standardFiles = [
+            [$files['texture_preview'], $targetRoot.DIRECTORY_SEPARATOR.$slug.'_Preview1.png'],
+            [$files['texture_base_color'], $twoKRoot.DIRECTORY_SEPARATOR.$slug.'_BaseColor.jpg'],
+            [$files['texture_normal'], $twoKRoot.DIRECTORY_SEPARATOR.$slug.'_Normal.png'],
+            [$files['texture_metallic'], $twoKRoot.DIRECTORY_SEPARATOR.$slug.'_Metallic.jpg'],
+            [$files['texture_roughness'], $twoKRoot.DIRECTORY_SEPARATOR.$slug.'_Roughness.jpg'],
+            [$files['texture_ambient_occlusion'], $twoKRoot.DIRECTORY_SEPARATOR.$slug.'_AmbientOcclusion.jpg'],
+        ];
+
+        foreach ($standardFiles as [$file, $path]) {
+            File::copy($file->getRealPath(), $path);
+        }
+
+        return [
+            'texture_slug' => $slug,
+            'texture_asset_prefix' => $slug,
+        ];
+    }
+
+    private function hasTextureUploads(Request $request): bool
+    {
+        foreach (array_keys($this->textureFileFields()) as $field) {
+            if ($request->hasFile($field)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return array<string, UploadedFile>
+     */
+    private function textureUploadFiles(Request $request): array
+    {
+        $files = [];
+        foreach ($this->textureFileFields() as $field => $label) {
+            $file = $request->file($field);
+            if (! $file instanceof UploadedFile || ! $file->isValid()) {
+                throw ValidationException::withMessages([
+                    $field => "Debes subir el archivo {$label}.",
+                ]);
+            }
+            $files[$field] = $file;
+        }
+
+        return $files;
+    }
+
+    private function textureFileFields(): array
+    {
+        return [
+            'texture_preview' => 'Preview',
+            'texture_base_color' => 'BaseColor',
+            'texture_normal' => 'Normal',
+            'texture_metallic' => 'Metallic',
+            'texture_roughness' => 'Roughness',
+            'texture_ambient_occlusion' => 'AmbientOcclusion',
+        ];
+    }
+
+    private function textureStorageRoot(): string
+    {
+        return rtrim((string) env('ADMIN_TEXTURES_PATH', base_path('../frontend/public/resources/balls-textures')), "\\/");
     }
 }

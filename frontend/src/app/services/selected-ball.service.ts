@@ -3,11 +3,12 @@ import { isPlatformBrowser } from '@angular/common';
 import { API_URL } from '../config/api-url';
 import { apiFetch } from '../shared/api-fetch';
 import { AuthService } from './auth.service';
-import { CLASSIC_BALL_TEXTURE_SLUG } from '../shared/ball-textures.catalog';
+import { CLASSIC_BALL_TEXTURE_SLUG, registerUploadedBallTextures } from '../shared/ball-textures.catalog';
 
 interface OwnedBall {
   id: number;
   texture_slug: string | null;
+  texture_asset_prefix?: string | null;
 }
 
 const LEGACY_ID_KEY = 'ptb_selected_ball_id';
@@ -63,6 +64,7 @@ export class SelectedBallService {
   }
 
   syncOwnedBalls(balls: OwnedBall[]): void {
+    registerUploadedBallTextures(balls);
     this.ownedBallIds.set(new Set(balls.map((b) => b.id)));
     this.validateSelection(balls);
   }

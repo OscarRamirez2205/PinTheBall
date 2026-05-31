@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="card">
-        <form method="post" action="{{ route('admin.balls.update', $ball) }}">
+        <form method="post" action="{{ route('admin.balls.update', $ball) }}" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -30,7 +30,37 @@
                     Texture slug
                     <input name="texture_slug" value="{{ old('texture_slug', $ball->texture_slug) }}">
                 </label>
+                <label>
+                    Reemplazar Preview (PNG)
+                    <input type="file" name="texture_preview" accept=".png,image/png">
+                </label>
+                <label>
+                    Reemplazar BaseColor (JPG)
+                    <input type="file" name="texture_base_color" accept=".jpg,.jpeg,image/jpeg">
+                </label>
+                <label>
+                    Reemplazar Normal (PNG)
+                    <input type="file" name="texture_normal" accept=".png,image/png">
+                </label>
+                <label>
+                    Reemplazar Metallic (JPG)
+                    <input type="file" name="texture_metallic" accept=".jpg,.jpeg,image/jpeg">
+                </label>
+                <label>
+                    Reemplazar Roughness (JPG)
+                    <input type="file" name="texture_roughness" accept=".jpg,.jpeg,image/jpeg">
+                </label>
+                <label>
+                    Reemplazar AmbientOcclusion (JPG)
+                    <input type="file" name="texture_ambient_occlusion" accept=".jpg,.jpeg,image/jpeg">
+                </label>
             </div>
+
+            <p class="muted">
+                Para reemplazar texturas, sube los seis archivos. Se guardarán en
+                <strong>public/resources/balls-textures/{{ old('texture_slug', $ball->texture_slug) ?: 'slug' }}</strong>
+                con el preview en la raíz y las texturas dentro de <strong>2K</strong>.
+            </p>
 
             <div class="actions">
                 <button class="button" type="submit">Guardar cambios</button>
