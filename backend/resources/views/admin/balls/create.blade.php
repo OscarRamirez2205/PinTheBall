@@ -41,7 +41,7 @@
                 <div class="file-grid">
                     <label class="file-field">
                         ZIP de texturas
-                        <span>El sistema extraerá el ZIP y guardará las texturas en el frontend.</span>
+                        <span>El sistema extraerá el ZIP y guardará las texturas en uploads.</span>
                         <input type="file" name="texture_pack" accept=".zip,application/zip" required>
                     </label>
                 </div>
@@ -49,8 +49,7 @@
 
             <p class="muted">
                 Se guardará como
-                <strong>public/resources/balls-textures/{slug}</strong> con el preview en la raíz y los mapas dentro de
-                <strong>2K</strong>.
+                <strong>/uploads/balls-textures/{slug}</strong> y la API enviará esas URLs al frontend.
             </p>
 
             <div class="actions">

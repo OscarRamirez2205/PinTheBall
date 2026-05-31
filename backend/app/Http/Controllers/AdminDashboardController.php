@@ -258,8 +258,9 @@ class AdminDashboardController extends Controller
         $zip->close();
 
         $packFiles = $this->findTexturePackFiles($extractRoot);
-        $targetRoot = $this->textureStorageRoot().DIRECTORY_SEPARATOR.$slug;
+        $targetRoot = public_path('uploads/balls-textures/'.$slug);
         $twoKRoot = $targetRoot.DIRECTORY_SEPARATOR.'2K';
+        $urlRoot = '/uploads/balls-textures/'.$slug;
 
         File::ensureDirectoryExists($targetRoot);
         File::cleanDirectory($targetRoot);
@@ -277,6 +278,12 @@ class AdminDashboardController extends Controller
         return [
             'texture_slug' => $slug,
             'texture_asset_prefix' => $slug,
+            'texture_preview_url' => $urlRoot.'/'.$slug.'_Preview1.png',
+            'texture_albedo_url' => $urlRoot.'/2K/'.$slug.'_BaseColor.jpg',
+            'texture_normal_url' => $urlRoot.'/2K/'.$slug.'_Normal.png',
+            'texture_metallic_url' => $urlRoot.'/2K/'.$slug.'_Metallic.jpg',
+            'texture_roughness_url' => $urlRoot.'/2K/'.$slug.'_Roughness.jpg',
+            'texture_ambient_occlusion_url' => $urlRoot.'/2K/'.$slug.'_AmbientOcclusion.jpg',
         ];
     }
 
@@ -315,8 +322,4 @@ class AdminDashboardController extends Controller
         return $found;
     }
 
-    private function textureStorageRoot(): string
-    {
-        return rtrim((string) env('ADMIN_TEXTURES_PATH', base_path('../frontend/public/resources/balls-textures')), "\\/");
-    }
 }

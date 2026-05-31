@@ -14,6 +14,12 @@ class Ball extends Model
         'subname',
         'texture_slug',
         'texture_asset_prefix',
+        'texture_preview_url',
+        'texture_albedo_url',
+        'texture_normal_url',
+        'texture_metallic_url',
+        'texture_roughness_url',
+        'texture_ambient_occlusion_url',
         'price',
         'deal_price',
     ];

@@ -49,6 +49,26 @@ function entry(
   };
 }
 
+function entryFromUrls(
+  slug: string,
+  name: string,
+  subname: string,
+  price: number,
+  dealPrice: number,
+  previewUrl: string,
+  maps: BallTextureMaps,
+): BallCatalogEntry {
+  return {
+    slug,
+    name,
+    subname,
+    price,
+    dealPrice,
+    previewUrl,
+    maps,
+  };
+}
+
 /** Bolas con texturas Poliigon en public/resources/balls-textures */
 export const BALL_TEXTURE_CATALOG: readonly BallCatalogEntry[] = [
   entry('brickwallreclaimed', 'Poliigon_BrickWallReclaimed_8320', 'Brick Ball', 'Reclaimed Wall', 280, 110),
@@ -71,6 +91,12 @@ const uploadedBySlug = new Map<string, BallCatalogEntry>();
 export interface ApiBallTextureRow {
   texture_slug: string | null;
   texture_asset_prefix?: string | null;
+  texture_preview_url?: string | null;
+  texture_albedo_url?: string | null;
+  texture_normal_url?: string | null;
+  texture_metallic_url?: string | null;
+  texture_roughness_url?: string | null;
+  texture_ambient_occlusion_url?: string | null;
   name?: string | null;
   subname?: string | null;
   price?: number | null;
@@ -80,6 +106,35 @@ export interface ApiBallTextureRow {
 export function registerUploadedBallTextures(rows: readonly ApiBallTextureRow[]): void {
   for (const row of rows) {
     if (!row.texture_slug || bySlug.has(row.texture_slug)) {
+      continue;
+    }
+
+    if (
+      row.texture_preview_url &&
+      row.texture_albedo_url &&
+      row.texture_normal_url &&
+      row.texture_metallic_url &&
+      row.texture_roughness_url &&
+      row.texture_ambient_occlusion_url
+    ) {
+      uploadedBySlug.set(
+        row.texture_slug,
+        entryFromUrls(
+          row.texture_slug,
+          row.name ?? row.texture_slug,
+          row.subname ?? '',
+          row.price ?? 0,
+          row.deal_price ?? 0,
+          row.texture_preview_url,
+          {
+            albedo: row.texture_albedo_url,
+            normal: row.texture_normal_url,
+            metallic: row.texture_metallic_url,
+            roughness: row.texture_roughness_url,
+            ambientOcclusion: row.texture_ambient_occlusion_url,
+          },
+        ),
+      );
       continue;
     }
 

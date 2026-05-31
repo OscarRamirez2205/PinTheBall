@@ -49,8 +49,8 @@
 
             <p class="muted">
                 Se guardará en
-                <strong>public/resources/balls-textures/{{ old('texture_slug', $ball->texture_slug) ?: 'slug' }}</strong>
-                con la estructura que usa el frontend.
+                <strong>/uploads/balls-textures/{{ old('texture_slug', $ball->texture_slug) ?: 'slug' }}</strong>
+                y la API enviará esas URLs al frontend.
             </p>
 
             <div class="actions">
