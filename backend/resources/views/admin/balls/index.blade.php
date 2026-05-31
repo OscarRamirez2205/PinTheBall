@@ -38,6 +38,7 @@
                 <th>Precio</th>
                 <th>Oferta</th>
                 <th>Textura</th>
+                <th>Prefijo</th>
                 <th>Compras</th>
                 <th>Acciones</th>
             </tr>
@@ -50,11 +51,12 @@
                     <td>{{ $ball->price }}</td>
                     <td>{{ $ball->deal_price ?? '-' }}</td>
                     <td>{{ $ball->texture_slug ?? '-' }}</td>
+                    <td>{{ $ball->texture_asset_prefix ?? '-' }}</td>
                     <td>{{ $ball->users_count }}</td>
                     <td><a href="{{ route('admin.balls.edit', $ball) }}">Editar</a></td>
                 </tr>
             @empty
-                <tr><td colspan="7">No se han encontrado bolas.</td></tr>
+                <tr><td colspan="8">No se han encontrado bolas.</td></tr>
             @endforelse
         </tbody>
     </table>

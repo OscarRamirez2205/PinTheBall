@@ -16,10 +16,10 @@ export interface BallCatalogEntry {
   maps: BallTextureMaps;
 }
 
-const TEXTURES_ROOT = '/resources/balls-textures';
+const STATIC_TEXTURES_ROOT = '/resources/balls-textures';
 
-function mapsFor(slug: string, assetPrefix: string): BallTextureMaps {
-  const base = `${TEXTURES_ROOT}/${slug}/2K/${assetPrefix}`;
+function mapsFor(root: string, slug: string, assetPrefix: string): BallTextureMaps {
+  const base = `${root}/${slug}/2K/${assetPrefix}`;
   return {
     albedo: `${base}_BaseColor.jpg`,
     normal: `${base}_Normal.png`,
@@ -36,6 +36,7 @@ function entry(
   subname: string,
   price: number,
   dealPrice: number,
+  root = STATIC_TEXTURES_ROOT,
 ): BallCatalogEntry {
   return {
     slug,
@@ -43,8 +44,8 @@ function entry(
     subname,
     price,
     dealPrice,
-    previewUrl: `${TEXTURES_ROOT}/${slug}/${assetPrefix}_Preview1.png`,
-    maps: mapsFor(slug, assetPrefix),
+    previewUrl: `${root}/${slug}/${assetPrefix}_Preview1.png`,
+    maps: mapsFor(root, slug, assetPrefix),
   };
 }
 
@@ -65,12 +66,43 @@ export const CLASSIC_BALL_TEXTURE_SLUG = 'metalsteelbrushed';
 export const DEFAULT_BALL_TEXTURE_SLUG = CLASSIC_BALL_TEXTURE_SLUG;
 
 const bySlug = new Map(BALL_TEXTURE_CATALOG.map((e) => [e.slug, e]));
+const uploadedBySlug = new Map<string, BallCatalogEntry>();
+
+export interface ApiBallTextureRow {
+  texture_slug: string | null;
+  texture_asset_prefix?: string | null;
+  name?: string | null;
+  subname?: string | null;
+  price?: number | null;
+  deal_price?: number | null;
+}
+
+export function registerUploadedBallTextures(rows: readonly ApiBallTextureRow[]): void {
+  for (const row of rows) {
+    if (!row.texture_slug || !row.texture_asset_prefix || bySlug.has(row.texture_slug)) {
+      continue;
+    }
+
+    uploadedBySlug.set(
+      row.texture_slug,
+      entry(
+        row.texture_slug,
+        row.texture_asset_prefix,
+        row.name ?? row.texture_slug,
+        row.subname ?? '',
+        row.price ?? 0,
+        row.deal_price ?? 0,
+        STATIC_TEXTURES_ROOT,
+      ),
+    );
+  }
+}
 
 export function getBallCatalogEntry(slug: string | null | undefined): BallCatalogEntry | undefined {
   if (!slug) {
     return undefined;
   }
-  return bySlug.get(slug);
+  return bySlug.get(slug) ?? uploadedBySlug.get(slug);
 }
 
 export function ballPreviewUrl(textureSlug: string | null | undefined): string {

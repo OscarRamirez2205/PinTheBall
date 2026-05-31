@@ -13,6 +13,7 @@ class Ball extends Model
         'name',
         'subname',
         'texture_slug',
+        'texture_asset_prefix',
         'price',
         'deal_price',
     ];

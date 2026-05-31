@@ -7,9 +7,12 @@ use App\Models\Game;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Illuminate\Validation\ValidationException;
 
 class AdminDashboardController extends Controller
 {
@@ -132,7 +135,9 @@ class AdminDashboardController extends Controller
 
     public function storeBall(Request $request): RedirectResponse
     {
-        $data = $this->validateBall($request);
+        $data = $this->validateBall($request, true);
+        $data = array_merge($data, $this->storeTextureFiles($request, $data['texture_slug'] ?? null, $data['name']));
+
         Ball::create($data);
 
         return redirect()->route('admin.balls')->with('status', 'Bola añadida.');
@@ -147,7 +152,13 @@ class AdminDashboardController extends Controller
 
     public function updateBall(Request $request, Ball $ball): RedirectResponse
     {
-        $ball->fill($this->validateBall($request));
+        $data = $this->validateBall($request, false);
+
+        if ($request->hasFile('texture_files')) {
+            $data = array_merge($data, $this->storeTextureFiles($request, $data['texture_slug'] ?? $ball->texture_slug, $data['name']));
+        }
+
+        $ball->fill($data);
         $ball->save();
 
         return redirect()->route('admin.balls.edit', $ball)->with('status', 'Bola actualizada.');
@@ -197,14 +208,132 @@ class AdminDashboardController extends Controller
         return redirect('/')->withoutCookie('ptb_admin_token', '/');
     }
 
-    private function validateBall(Request $request): array
+    private function validateBall(Request $request, bool $requiresTextures): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'name' => 'required|string|max:255',
             'subname' => 'nullable|string|max:255',
-            'texture_slug' => 'nullable|string|max:64',
+            'texture_slug' => ['nullable', 'string', 'max:64', 'regex:/^[a-z0-9-]+$/'],
             'price' => 'required|integer|min:0',
             'deal_price' => 'nullable|integer|min:0',
+            'texture_files' => [$requiresTextures ? 'required' : 'sometimes', 'array'],
+            'texture_files.*' => 'file|max:102400',
+        ], [
+            'texture_slug.regex' => 'El slug de textura solo puede usar minúsculas, números y guiones.',
+            'texture_files.required' => 'Debes subir la carpeta de texturas de la bola.',
         ]);
+
+        unset($data['texture_files']);
+
+        return $data;
+    }
+
+    private function storeTextureFiles(Request $request, ?string $requestedSlug, string $ballName): array
+    {
+        $files = $request->file('texture_files', []);
+        if (! is_array($files) || $files === []) {
+            throw ValidationException::withMessages([
+                'texture_files' => 'Debes subir la carpeta completa de texturas.',
+            ]);
+        }
+
+        $slug = $requestedSlug ?: Str::lower(Str::slug($ballName, ''));
+        if ($slug === '') {
+            throw ValidationException::withMessages([
+                'texture_slug' => 'No se ha podido generar el slug de textura.',
+            ]);
+        }
+
+        $targetRoot = $this->textureStorageRoot().DIRECTORY_SEPARATOR.$slug;
+        File::ensureDirectoryExists($targetRoot);
+
+        $previewPrefix = null;
+        $mapPrefix = null;
+        $maps = [
+            'BaseColor' => false,
+            'Normal' => false,
+            'Metallic' => false,
+            'Roughness' => false,
+            'AmbientOcclusion' => false,
+        ];
+
+        foreach ($files as $file) {
+            if (! $file instanceof UploadedFile || ! $file->isValid()) {
+                continue;
+            }
+
+            $relativePath = $this->normalizeTextureUploadPath($file);
+            if ($relativePath === null) {
+                continue;
+            }
+
+            $filename = basename($relativePath);
+            $destination = $targetRoot.DIRECTORY_SEPARATOR.str_replace('/', DIRECTORY_SEPARATOR, dirname($relativePath));
+            if ($destination === $targetRoot.DIRECTORY_SEPARATOR.'.') {
+                $destination = $targetRoot;
+            }
+            File::ensureDirectoryExists($destination);
+            $file->move($destination, $filename);
+
+            if (preg_match('/^(.+)_Preview\d+\.(png|jpe?g|webp)$/i', $filename, $match) === 1) {
+                $previewPrefix = $match[1];
+            }
+
+            if (str_starts_with(strtolower($relativePath), '2k/')) {
+                foreach (array_keys($maps) as $mapName) {
+                    if (preg_match('/^(.+)_'.$mapName.'\.(png|jpe?g|tiff?|webp)$/i', $filename, $match) === 1) {
+                        if ($mapPrefix !== null && $mapPrefix !== $match[1]) {
+                            throw ValidationException::withMessages([
+                                'texture_files' => 'Todos los mapas de 2K deben usar el mismo prefijo de archivo.',
+                            ]);
+                        }
+                        $maps[$mapName] = true;
+                        $mapPrefix = $mapPrefix ?? $match[1];
+                    }
+                }
+            }
+        }
+
+        $missingMaps = array_keys(array_filter($maps, fn (bool $found): bool => ! $found));
+        if ($previewPrefix === null || $mapPrefix === null || $missingMaps !== [] || $previewPrefix !== $mapPrefix) {
+            throw ValidationException::withMessages([
+                'texture_files' => 'La carpeta debe incluir una imagen *_Preview1.* y en 2K los mapas *_BaseColor, *_Normal, *_Metallic, *_Roughness y *_AmbientOcclusion con el mismo prefijo.',
+            ]);
+        }
+
+        return [
+            'texture_slug' => $slug,
+            'texture_asset_prefix' => $mapPrefix,
+        ];
+    }
+
+    private function normalizeTextureUploadPath(UploadedFile $file): ?string
+    {
+        $path = method_exists($file, 'getClientOriginalPath')
+            ? $file->getClientOriginalPath()
+            : $file->getClientOriginalName();
+        $parts = array_values(array_filter(explode('/', str_replace('\\', '/', $path)), fn (string $part): bool => $part !== '' && $part !== '.' && $part !== '..'));
+        if ($parts === []) {
+            return null;
+        }
+
+        $twoKIndex = null;
+        foreach ($parts as $index => $part) {
+            if (strtolower($part) === '2k') {
+                $twoKIndex = $index;
+                break;
+            }
+        }
+
+        if ($twoKIndex !== null) {
+            return '2K/'.implode('/', array_slice($parts, $twoKIndex + 1));
+        }
+
+        return basename(end($parts));
+    }
+
+    private function textureStorageRoot(): string
+    {
+        return rtrim((string) env('ADMIN_TEXTURES_PATH', base_path('../frontend/public/resources/balls-textures')), "\\/");
     }
 }

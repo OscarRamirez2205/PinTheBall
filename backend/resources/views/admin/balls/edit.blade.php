@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="card">
-        <form method="post" action="{{ route('admin.balls.update', $ball) }}">
+        <form method="post" action="{{ route('admin.balls.update', $ball) }}" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -30,7 +30,21 @@
                     Texture slug
                     <input name="texture_slug" value="{{ old('texture_slug', $ball->texture_slug) }}">
                 </label>
+                <label>
+                    Reemplazar carpeta de texturas
+                    <input type="file" name="texture_files[]" webkitdirectory directory multiple>
+                </label>
+                <label>
+                    Prefijo detectado
+                    <input value="{{ $ball->texture_asset_prefix ?? 'Sin texturas subidas' }}" disabled>
+                </label>
             </div>
+
+            <p class="muted">
+                Si subes una carpeta nueva, se guardará en
+                <strong>public/resources/balls-textures/{{ old('texture_slug', $ball->texture_slug) ?: 'slug' }}</strong>
+                y se actualizará el prefijo de textura automáticamente.
+            </p>
 
             <div class="actions">
                 <button class="button" type="submit">Guardar cambios</button>
