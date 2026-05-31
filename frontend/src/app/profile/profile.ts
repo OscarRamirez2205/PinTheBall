@@ -5,7 +5,6 @@ import { API_URL } from '../config/api-url';
 import { AuthService } from '../services/auth.service';
 import { SelectedBallService } from '../services/selected-ball.service';
 import { ballPreviewImage } from '../shared/ball-preview';
-import { registerUploadedBallTextures } from '../shared/ball-textures.catalog';
 import {currentPlayStreak, gamesToDaySet, lastNDaysPlayFlags, longestPlayStreak,} from './profile.logic';/** Stats del usuario */
 import { apiFetch } from '../shared/api-fetch';
 
@@ -32,7 +31,6 @@ export interface ApiBall {
   name: string;
   subname: string | null;
   texture_slug: string | null;
-  texture_asset_prefix?: string | null;
   price: number;
   deal_price?: number | null;
 }
@@ -171,7 +169,6 @@ export class Profile {
         apiFetch<GameDto[]>(`${API_URL}/games/user/${userId}`),
         apiFetch<ApiBall[]>(`${API_URL}/users/${userId}/balls`),
       ]);
-      registerUploadedBallTextures(bolas);
       this.auth.setUser(perfil);
       this.user.set(perfil);
       this.games.set(partidas);

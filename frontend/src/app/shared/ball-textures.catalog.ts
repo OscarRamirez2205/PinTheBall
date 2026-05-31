@@ -17,6 +17,7 @@ export interface BallCatalogEntry {
 }
 
 const STATIC_TEXTURES_ROOT = '/resources/balls-textures';
+const UPLOADED_TEXTURES_ROOT = '/storage/balls-textures';
 
 function mapsFor(root: string, slug: string, assetPrefix: string): BallTextureMaps {
   const base = `${root}/${slug}/2K/${assetPrefix}`;
@@ -92,7 +93,7 @@ export function registerUploadedBallTextures(rows: readonly ApiBallTextureRow[])
         row.subname ?? '',
         row.price ?? 0,
         row.deal_price ?? 0,
-        STATIC_TEXTURES_ROOT,
+        UPLOADED_TEXTURES_ROOT,
       ),
     );
   }
