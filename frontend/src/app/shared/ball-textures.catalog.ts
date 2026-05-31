@@ -103,7 +103,7 @@ export function getBallCatalogEntry(slug: string | null | undefined): BallCatalo
   if (!slug) {
     return undefined;
   }
-  return bySlug.get(slug) ?? uploadedBySlug.get(slug);
+  return bySlug.get(slug) ?? uploadedBySlug.get(slug) ?? entry(slug, slug, slug, '', 0, 0);
 }
 
 export function ballPreviewUrl(textureSlug: string | null | undefined): string {
