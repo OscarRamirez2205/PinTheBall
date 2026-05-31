@@ -83,12 +83,11 @@ export function registerUploadedBallTextures(rows: readonly ApiBallTextureRow[])
       continue;
     }
 
-    const assetPrefix = row.texture_asset_prefix ?? row.texture_slug;
     uploadedBySlug.set(
       row.texture_slug,
       entry(
         row.texture_slug,
-        assetPrefix,
+        row.texture_asset_prefix ?? row.texture_slug,
         row.name ?? row.texture_slug,
         row.subname ?? '',
         row.price ?? 0,

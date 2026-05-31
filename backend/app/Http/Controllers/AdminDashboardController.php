@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Illuminate\Validation\ValidationException;
+use ZipArchive;
 
 class AdminDashboardController extends Controller
 {
@@ -136,7 +137,7 @@ class AdminDashboardController extends Controller
     public function storeBall(Request $request): RedirectResponse
     {
         $data = $this->validateBall($request, true);
-        $data = array_merge($data, $this->storeTextureFiles($request, $data['texture_slug'] ?? null, $data['name']));
+        $data = array_merge($data, $this->storeTexturePack($request, $data['texture_slug'] ?? null, $data['name']));
 
         Ball::create($data);
 
@@ -154,8 +155,8 @@ class AdminDashboardController extends Controller
     {
         $data = $this->validateBall($request, false);
 
-        if ($this->hasTextureUploads($request)) {
-            $data = array_merge($data, $this->storeTextureFiles($request, $data['texture_slug'] ?? $ball->texture_slug, $data['name']));
+        if ($request->hasFile('texture_pack')) {
+            $data = array_merge($data, $this->storeTexturePack($request, $data['texture_slug'] ?? $ball->texture_slug, $data['name']));
         }
 
         $ball->fill($data);
@@ -216,35 +217,18 @@ class AdminDashboardController extends Controller
             'texture_slug' => ['nullable', 'string', 'max:64', 'regex:/^[a-z0-9-]+$/'],
             'price' => 'required|integer|min:0',
             'deal_price' => 'nullable|integer|min:0',
-            'texture_preview' => [$requiresTextures ? 'required' : 'sometimes', 'file', 'mimes:png', 'max:102400'],
-            'texture_base_color' => [$requiresTextures ? 'required' : 'sometimes', 'file', 'mimes:jpg,jpeg', 'max:102400'],
-            'texture_normal' => [$requiresTextures ? 'required' : 'sometimes', 'file', 'mimes:png', 'max:102400'],
-            'texture_metallic' => [$requiresTextures ? 'required' : 'sometimes', 'file', 'mimes:jpg,jpeg', 'max:102400'],
-            'texture_roughness' => [$requiresTextures ? 'required' : 'sometimes', 'file', 'mimes:jpg,jpeg', 'max:102400'],
-            'texture_ambient_occlusion' => [$requiresTextures ? 'required' : 'sometimes', 'file', 'mimes:jpg,jpeg', 'max:102400'],
+            'texture_pack' => [$requiresTextures ? 'required' : 'sometimes', 'file', 'mimes:zip', 'max:512000'],
         ], [
             'texture_slug.regex' => 'El slug de textura solo puede usar minúsculas, números y guiones.',
-            'texture_preview.required' => 'Debes subir la imagen preview de la bola.',
-            'texture_base_color.required' => 'Debes subir la textura BaseColor.',
-            'texture_normal.required' => 'Debes subir la textura Normal.',
-            'texture_metallic.required' => 'Debes subir la textura Metallic.',
-            'texture_roughness.required' => 'Debes subir la textura Roughness.',
-            'texture_ambient_occlusion.required' => 'Debes subir la textura AmbientOcclusion.',
+            'texture_pack.required' => 'Debes subir el ZIP del pack de texturas.',
         ]);
 
-        unset(
-            $data['texture_preview'],
-            $data['texture_base_color'],
-            $data['texture_normal'],
-            $data['texture_metallic'],
-            $data['texture_roughness'],
-            $data['texture_ambient_occlusion'],
-        );
+        unset($data['texture_pack']);
 
         return $data;
     }
 
-    private function storeTextureFiles(Request $request, ?string $requestedSlug, string $ballName): array
+    private function storeTexturePack(Request $request, ?string $requestedSlug, string $ballName): array
     {
         $slug = $requestedSlug ?: Str::lower(Str::slug($ballName, ''));
         if ($slug === '') {
@@ -253,8 +237,27 @@ class AdminDashboardController extends Controller
             ]);
         }
 
-        $files = $this->textureUploadFiles($request);
+        $file = $request->file('texture_pack');
+        if (! $file instanceof UploadedFile || ! $file->isValid()) {
+            throw ValidationException::withMessages([
+                'texture_pack' => 'Debes subir un ZIP válido con las texturas.',
+            ]);
+        }
 
+        $extractRoot = storage_path('app/texture-packs/'.$slug.'-'.Str::random(8));
+        File::ensureDirectoryExists($extractRoot);
+
+        $zip = new ZipArchive();
+        if ($zip->open($file->getRealPath()) !== true) {
+            File::deleteDirectory($extractRoot);
+            throw ValidationException::withMessages([
+                'texture_pack' => 'No se ha podido abrir el ZIP de texturas.',
+            ]);
+        }
+        $zip->extractTo($extractRoot);
+        $zip->close();
+
+        $packFiles = $this->findTexturePackFiles($extractRoot);
         $targetRoot = $this->textureStorageRoot().DIRECTORY_SEPARATOR.$slug;
         $twoKRoot = $targetRoot.DIRECTORY_SEPARATOR.'2K';
 
@@ -262,18 +265,14 @@ class AdminDashboardController extends Controller
         File::cleanDirectory($targetRoot);
         File::ensureDirectoryExists($twoKRoot);
 
-        $standardFiles = [
-            [$files['texture_preview'], $targetRoot.DIRECTORY_SEPARATOR.$slug.'_Preview1.png'],
-            [$files['texture_base_color'], $twoKRoot.DIRECTORY_SEPARATOR.$slug.'_BaseColor.jpg'],
-            [$files['texture_normal'], $twoKRoot.DIRECTORY_SEPARATOR.$slug.'_Normal.png'],
-            [$files['texture_metallic'], $twoKRoot.DIRECTORY_SEPARATOR.$slug.'_Metallic.jpg'],
-            [$files['texture_roughness'], $twoKRoot.DIRECTORY_SEPARATOR.$slug.'_Roughness.jpg'],
-            [$files['texture_ambient_occlusion'], $twoKRoot.DIRECTORY_SEPARATOR.$slug.'_AmbientOcclusion.jpg'],
-        ];
+        File::copy($packFiles['preview'], $targetRoot.DIRECTORY_SEPARATOR.$slug.'_Preview1.png');
+        File::copy($packFiles['base_color'], $twoKRoot.DIRECTORY_SEPARATOR.$slug.'_BaseColor.jpg');
+        File::copy($packFiles['normal'], $twoKRoot.DIRECTORY_SEPARATOR.$slug.'_Normal.png');
+        File::copy($packFiles['metallic'], $twoKRoot.DIRECTORY_SEPARATOR.$slug.'_Metallic.jpg');
+        File::copy($packFiles['roughness'], $twoKRoot.DIRECTORY_SEPARATOR.$slug.'_Roughness.jpg');
+        File::copy($packFiles['ambient_occlusion'], $twoKRoot.DIRECTORY_SEPARATOR.$slug.'_AmbientOcclusion.jpg');
 
-        foreach ($standardFiles as [$file, $path]) {
-            File::copy($file->getRealPath(), $path);
-        }
+        File::deleteDirectory($extractRoot);
 
         return [
             'texture_slug' => $slug,
@@ -281,46 +280,39 @@ class AdminDashboardController extends Controller
         ];
     }
 
-    private function hasTextureUploads(Request $request): bool
+    private function findTexturePackFiles(string $root): array
     {
-        foreach (array_keys($this->textureFileFields()) as $field) {
-            if ($request->hasFile($field)) {
-                return true;
+        $found = [];
+        foreach (File::allFiles($root) as $file) {
+            $filename = $file->getFilename();
+            $path = $file->getPathname();
+
+            if (preg_match('/_Preview\d+\.png$/i', $filename) === 1) {
+                $found['preview'] = $path;
+            } elseif (preg_match('/_BaseColor\.jpe?g$/i', $filename) === 1) {
+                $found['base_color'] = $path;
+            } elseif (preg_match('/_Normal\.png$/i', $filename) === 1) {
+                $found['normal'] = $path;
+            } elseif (preg_match('/_Metallic\.jpe?g$/i', $filename) === 1) {
+                $found['metallic'] = $path;
+            } elseif (preg_match('/_Roughness\.jpe?g$/i', $filename) === 1) {
+                $found['roughness'] = $path;
+            } elseif (preg_match('/_AmbientOcclusion\.jpe?g$/i', $filename) === 1) {
+                $found['ambient_occlusion'] = $path;
             }
         }
 
-        return false;
-    }
+        $required = ['preview', 'base_color', 'normal', 'metallic', 'roughness', 'ambient_occlusion'];
+        $missing = array_values(array_filter($required, fn (string $key): bool => ! isset($found[$key])));
 
-    /**
-     * @return array<string, UploadedFile>
-     */
-    private function textureUploadFiles(Request $request): array
-    {
-        $files = [];
-        foreach ($this->textureFileFields() as $field => $label) {
-            $file = $request->file($field);
-            if (! $file instanceof UploadedFile || ! $file->isValid()) {
-                throw ValidationException::withMessages([
-                    $field => "Debes subir el archivo {$label}.",
-                ]);
-            }
-            $files[$field] = $file;
+        if ($missing !== []) {
+            File::deleteDirectory($root);
+            throw ValidationException::withMessages([
+                'texture_pack' => 'Al ZIP le faltan archivos: '.implode(', ', $missing).'.',
+            ]);
         }
 
-        return $files;
-    }
-
-    private function textureFileFields(): array
-    {
-        return [
-            'texture_preview' => 'Preview',
-            'texture_base_color' => 'BaseColor',
-            'texture_normal' => 'Normal',
-            'texture_metallic' => 'Metallic',
-            'texture_roughness' => 'Roughness',
-            'texture_ambient_occlusion' => 'AmbientOcclusion',
-        ];
+        return $found;
     }
 
     private function textureStorageRoot(): string

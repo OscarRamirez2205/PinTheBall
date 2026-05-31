@@ -33,49 +33,24 @@
             </div>
 
             <div class="form-section">
-                <p class="form-section-title">Reemplazar texturas</p>
+                <p class="form-section-title">Reemplazar pack de texturas</p>
                 <p class="muted">
-                    Para cambiar las texturas, sube los seis archivos. Si no subes nada, se mantienen los archivos actuales.
+                    Sube un ZIP nuevo para reemplazar el preview y todos los mapas. Si no subes nada, se mantiene el pack actual.
                 </p>
 
                 <div class="file-grid">
                     <label class="file-field">
-                        Reemplazar Preview (PNG)
-                        <span>Imagen de muestra que se verá en la tienda.</span>
-                        <input type="file" name="texture_preview" accept=".png,image/png">
-                    </label>
-                    <label class="file-field">
-                        Reemplazar BaseColor (JPG)
-                        <span>Color principal de la textura.</span>
-                        <input type="file" name="texture_base_color" accept=".jpg,.jpeg,image/jpeg">
-                    </label>
-                    <label class="file-field">
-                        Reemplazar Normal (PNG)
-                        <span>Relieve/detalle de la superficie.</span>
-                        <input type="file" name="texture_normal" accept=".png,image/png">
-                    </label>
-                    <label class="file-field">
-                        Reemplazar Metallic (JPG)
-                        <span>Mapa de metalicidad.</span>
-                        <input type="file" name="texture_metallic" accept=".jpg,.jpeg,image/jpeg">
-                    </label>
-                    <label class="file-field">
-                        Reemplazar Roughness (JPG)
-                        <span>Mapa de rugosidad.</span>
-                        <input type="file" name="texture_roughness" accept=".jpg,.jpeg,image/jpeg">
-                    </label>
-                    <label class="file-field">
-                        Reemplazar AmbientOcclusion (JPG)
-                        <span>Sombras/oclusión ambiental.</span>
-                        <input type="file" name="texture_ambient_occlusion" accept=".jpg,.jpeg,image/jpeg">
+                        ZIP de texturas
+                        <span>Debe incluir Preview, BaseColor, Normal, Metallic, Roughness y AmbientOcclusion.</span>
+                        <input type="file" name="texture_pack" accept=".zip,application/zip">
                     </label>
                 </div>
             </div>
 
             <p class="muted">
-                Para reemplazar texturas, sube los seis archivos. Se guardarán en
+                Se guardará en
                 <strong>public/resources/balls-textures/{{ old('texture_slug', $ball->texture_slug) ?: 'slug' }}</strong>
-                con el preview en la raíz y las texturas dentro de <strong>2K</strong>.
+                con la estructura que usa el frontend.
             </p>
 
             <div class="actions">
