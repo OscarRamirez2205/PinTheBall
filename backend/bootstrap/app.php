@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureAdminDashboard;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        EncryptCookies::except('ptb_admin_token');
+
         $middleware->alias([
             'admin.dashboard' => EnsureAdminDashboard::class,
         ]);
