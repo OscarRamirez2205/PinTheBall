@@ -100,6 +100,49 @@
         }
         .errors { background: #fef3f2; border-color: #fecdca; color: var(--danger); }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+        .form-grid.compact { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-bottom: 20px; }
+        .form-section {
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid var(--line);
+        }
+        .form-section-title {
+            margin: 0 0 4px;
+            font-size: 17px;
+            font-weight: 700;
+        }
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 14px;
+            margin-top: 14px;
+        }
+        .file-field {
+            padding: 14px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+        .file-field span {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--muted);
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 7px;
+            background: #fff;
+        }
+        input[type="file"]::file-selector-button {
+            margin-right: 10px;
+            padding: 7px 10px;
+            border: 1px solid var(--accent);
+            border-radius: 7px;
+            background: #eef4ff;
+            color: var(--accent);
+            font: inherit;
+            cursor: pointer;
+        }
         .actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
         .pagination { display: flex; gap: 10px; margin-top: 16px; align-items: center; }
         @media (max-width: 760px) {

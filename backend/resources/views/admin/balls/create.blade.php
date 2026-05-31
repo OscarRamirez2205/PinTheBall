@@ -8,7 +8,7 @@
         <form method="post" action="{{ route('admin.balls.store') }}" enctype="multipart/form-data">
             @csrf
 
-            <div class="form-grid">
+            <div class="form-grid compact">
                 <label>
                     Nombre
                     <input name="name" value="{{ old('name') }}" required>
@@ -29,30 +29,47 @@
                     Texture slug
                     <input name="texture_slug" value="{{ old('texture_slug') }}" placeholder="se genera desde el nombre si lo dejas vacío">
                 </label>
-                <label>
-                    Preview (PNG)
-                    <input type="file" name="texture_preview" accept=".png,image/png" required>
-                </label>
-                <label>
-                    BaseColor (JPG)
-                    <input type="file" name="texture_base_color" accept=".jpg,.jpeg,image/jpeg" required>
-                </label>
-                <label>
-                    Normal (PNG)
-                    <input type="file" name="texture_normal" accept=".png,image/png" required>
-                </label>
-                <label>
-                    Metallic (JPG)
-                    <input type="file" name="texture_metallic" accept=".jpg,.jpeg,image/jpeg" required>
-                </label>
-                <label>
-                    Roughness (JPG)
-                    <input type="file" name="texture_roughness" accept=".jpg,.jpeg,image/jpeg" required>
-                </label>
-                <label>
-                    AmbientOcclusion (JPG)
-                    <input type="file" name="texture_ambient_occlusion" accept=".jpg,.jpeg,image/jpeg" required>
-                </label>
+            </div>
+
+            <div class="form-section">
+                <p class="form-section-title">Archivos de textura</p>
+                <p class="muted">
+                    Elige cada archivo por separado. El sistema creará la carpeta de la bola y renombrará los archivos
+                    con el slug automáticamente.
+                </p>
+
+                <div class="file-grid">
+                    <label class="file-field">
+                        Preview (PNG)
+                        <span>Imagen de muestra que se verá en la tienda.</span>
+                        <input type="file" name="texture_preview" accept=".png,image/png" required>
+                    </label>
+                    <label class="file-field">
+                        BaseColor (JPG)
+                        <span>Color principal de la textura.</span>
+                        <input type="file" name="texture_base_color" accept=".jpg,.jpeg,image/jpeg" required>
+                    </label>
+                    <label class="file-field">
+                        Normal (PNG)
+                        <span>Relieve/detalle de la superficie.</span>
+                        <input type="file" name="texture_normal" accept=".png,image/png" required>
+                    </label>
+                    <label class="file-field">
+                        Metallic (JPG)
+                        <span>Mapa de metalicidad.</span>
+                        <input type="file" name="texture_metallic" accept=".jpg,.jpeg,image/jpeg" required>
+                    </label>
+                    <label class="file-field">
+                        Roughness (JPG)
+                        <span>Mapa de rugosidad.</span>
+                        <input type="file" name="texture_roughness" accept=".jpg,.jpeg,image/jpeg" required>
+                    </label>
+                    <label class="file-field">
+                        AmbientOcclusion (JPG)
+                        <span>Sombras/oclusión ambiental.</span>
+                        <input type="file" name="texture_ambient_occlusion" accept=".jpg,.jpeg,image/jpeg" required>
+                    </label>
+                </div>
             </div>
 
             <p class="muted">
