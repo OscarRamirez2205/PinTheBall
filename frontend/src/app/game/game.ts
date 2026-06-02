@@ -530,6 +530,9 @@ export class Game implements AfterViewInit, OnDestroy {
             }
             if (keyboardInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN) {
               keyboardInfo.event.preventDefault();
+              if (isLeftFlipperPressed) {
+                return;
+              }
               isLeftFlipperPressed = true;
               sfx.playFlipper();
             } else if (keyboardInfo.type === BABYLON.KeyboardEventTypes.KEYUP) {
@@ -602,6 +605,9 @@ export class Game implements AfterViewInit, OnDestroy {
             }
             if (keyboardInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN) {
               keyboardInfo.event.preventDefault();
+              if (isRightFlipperPressed) {
+                return;
+              }
               isRightFlipperPressed = true;
               sfx.playFlipper();
             } else if (keyboardInfo.type === BABYLON.KeyboardEventTypes.KEYUP) {
@@ -748,7 +754,7 @@ export class Game implements AfterViewInit, OnDestroy {
           };
           createNewBall();
 
-          const maxBallSpeed = 10;
+          const maxBallSpeed = 8;
           const maxBallSpeedSquared = maxBallSpeed * maxBallSpeed;
           const currentBallVelocity = BABYLON.Vector3.Zero();
           const zeroVelocity = BABYLON.Vector3.Zero();
