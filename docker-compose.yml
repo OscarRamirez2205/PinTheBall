@@ -63,14 +63,12 @@ services:
       CACHE_STORE: file
       QUEUE_CONNECTION: sync
       SANCTUM_STATEFUL_DOMAINS: ${DNS_DOMAIN:-pintheball}
-      ADMIN_TEXTURES_PATH: /var/www/frontend/balls-textures
     depends_on:
       mysql:
         condition: service_healthy
     volumes:
       - ./backend:/var/www/html
       - backend_vendor:/var/www/html/vendor
-      - ./frontend/public/resources/balls-textures:/var/www/frontend/balls-textures
 
   frontend:
     build:

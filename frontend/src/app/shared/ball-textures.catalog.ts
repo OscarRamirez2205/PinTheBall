@@ -16,7 +16,7 @@ export interface BallCatalogEntry {
   maps: BallTextureMaps;
 }
 
-const STATIC_TEXTURES_ROOT = '/resources/balls-textures';
+const STATIC_TEXTURES_ROOT = '/uploads/balls-textures';
 
 function mapsFor(root: string, slug: string, assetPrefix: string): BallTextureMaps {
   const base = `${root}/${slug}/2K/${assetPrefix}`;
@@ -69,7 +69,7 @@ function entryFromUrls(
   };
 }
 
-/** Bolas con texturas Poliigon en public/resources/balls-textures */
+/** Bolas con texturas Poliigon servidas desde el backend en /uploads/balls-textures */
 export const BALL_TEXTURE_CATALOG: readonly BallCatalogEntry[] = [
   entry('brickwallreclaimed', 'Poliigon_BrickWallReclaimed_8320', 'Brick Ball', 'Reclaimed Wall', 280, 110),
   entry('grasspatchyground', 'Poliigon_GrassPatchyGround_4585', 'Grass Ball', 'Patchy Ground', 220, 90),

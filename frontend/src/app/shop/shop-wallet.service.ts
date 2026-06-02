@@ -14,7 +14,6 @@ export class ShopWalletService {
     this._ownedBallIds.set(new Set());
   }
 
-  /** Sincroniza saldo y bolas poseídas desde GET usuario + inventario. */
   hydrate(wallet: number, ownedBallIds: number[]): void {
     this._coins.set(Math.max(0, wallet));
     this._ownedBallIds.set(new Set(ownedBallIds));
