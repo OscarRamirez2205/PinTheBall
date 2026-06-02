@@ -62,8 +62,13 @@ export class AuthService {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
-    this.setToken(res.token);
+    if (res.user.role === 'admin') {
+      this.clearToken();
+      return res;
+    }
+
     this.setUser(res.user);
+    this.setToken(res.token);
     return res;
   }
 
@@ -77,8 +82,8 @@ export class AuthService {
       method: 'POST',
       body: JSON.stringify(payload),
     });
-    this.setToken(res.token);
     this.setUser(res.user);
+    this.setToken(res.token);
     return res;
   }
 
@@ -105,10 +110,19 @@ export class AuthService {
     if (typeof localStorage === 'undefined') {
       return null;
     }
-    return localStorage.getItem(TOKEN_KEY);
+    const token = localStorage.getItem(TOKEN_KEY);
+    const user = this.getStoredUser();
+
+    return user?.role === 'admin' ? null : token;
   }
 
   getUser(): AuthUser | null {
+    const user = this.getStoredUser();
+
+    return user?.role === 'admin' ? null : user;
+  }
+
+  private getStoredUser(): AuthUser | null {
     if (typeof localStorage === 'undefined') {
       return null;
     }
