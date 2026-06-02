@@ -6,6 +6,7 @@ import {
   OnDestroy,
   PLATFORM_ID,
   ViewChild,
+  ViewEncapsulation,
   inject,
   signal,
 } from '@angular/core';
@@ -35,11 +36,50 @@ interface SavedGameResponse {
   wallet?: number;
 }
 
+class GameLoadingScreen implements BABYLON.ILoadingScreen {
+  loadingUIBackgroundColor = '#080312';
+  loadingUIText = 'Cargando PinTheBall...';
+  private loadingElement: HTMLDivElement | null = null;
+
+  displayLoadingUI(): void {
+    if (this.loadingElement) {
+      return;
+    }
+
+    this.loadingElement = document.createElement('div');
+    this.loadingElement.className = 'ptb-loading-screen';
+    this.loadingElement.innerHTML = `
+      <div class="ptb-loading-card" role="status" aria-live="polite">
+        <img class="ptb-loading-logo" src="/resources/LogoSmll_PTB.png" alt="PinTheBall">
+        <h1 class="ptb-loading-title">PinTheBall</h1>
+        <p class="ptb-loading-text">${this.loadingUIText}</p>
+        <div class="ptb-loading-bar" aria-hidden="true"></div>
+      </div>
+    `;
+
+    document.body.appendChild(this.loadingElement);
+  }
+
+  hideLoadingUI(): void {
+    if (!this.loadingElement) {
+      return;
+    }
+
+    const loadingElement = this.loadingElement;
+    this.loadingElement = null;
+    loadingElement.classList.add('ptb-loading-hidden');
+    window.setTimeout(() => {
+      loadingElement.remove();
+    }, 260);
+  }
+}
+
 @Component({
   selector: 'app-game',
   imports: [DecimalPipe],
   templateUrl: './game.html',
   styleUrl: './game.scss',
+  encapsulation: ViewEncapsulation.None,
 })
 
 export class Game implements AfterViewInit, OnDestroy {
@@ -183,6 +223,8 @@ export class Game implements AfterViewInit, OnDestroy {
 
     const canvas = this.renderCanvasRef.nativeElement;
     this.engine = new BABYLON.Engine(canvas, true, { audioEngine: true });
+    this.engine.loadingScreen = new GameLoadingScreen();
+    this.engine.displayLoadingUI();
     this.scene = this.createScene(this.engine, canvas);
 
     this.engine.runRenderLoop(() => {
@@ -198,6 +240,7 @@ export class Game implements AfterViewInit, OnDestroy {
     }
 
     window.removeEventListener('resize', this.resizeHandler);
+    this.engine?.hideLoadingUI();
     this.gameSounds?.dispose();
     this.gameSounds = null;
     this.scene?.dispose();
@@ -225,11 +268,15 @@ export class Game implements AfterViewInit, OnDestroy {
         locateFile: (path: string) =>
           path.endsWith('.wasm') ? '/resources/wasm/HavokPhysics.wasm' : path,
       })
-      .then((havokInstance) => {
+      .then(async (havokInstance) => {
         const hk = new HavokPlugin(true, havokInstance);
         scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), hk);
-        void setupSkyPano(scene);
-        return ImportMeshAsync("./resources/object/pinball/Pinball.glb", scene);
+        const [pinballResult] = await Promise.all([
+          ImportMeshAsync("./resources/object/pinball/Pinball.glb", scene),
+          setupSkyPano(scene),
+        ]);
+
+        return pinballResult;
       })
       .then((result) => {
         const root = result.meshes[0];
@@ -883,8 +930,10 @@ export class Game implements AfterViewInit, OnDestroy {
           });
         }
 
+        engine.hideLoadingUI();
       })
       .catch((error) => {
+        engine.hideLoadingUI();
         console.error('Error initializing Havok or loading pinball mesh:', error);
       });
           
