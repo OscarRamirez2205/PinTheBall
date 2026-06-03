@@ -1,3 +1,19 @@
+@if (gameLoadingVisible()) {
+  <div
+    class="ptb-loading-screen"
+    [class.ptb-loading-hidden]="gameLoadingHidden()"
+    role="status"
+    aria-live="polite"
+  >
+    <div class="ptb-loading-card">
+      <img class="ptb-loading-logo" src="/resources/LogoSmll_PTB.png" alt="PinTheBall">
+      <h1 class="ptb-loading-title">PinTheBall</h1>
+      <p class="ptb-loading-text">Cargando PinTheBall...</p>
+      <div class="ptb-loading-bar" aria-hidden="true"></div>
+    </div>
+  </div>
+}
+
 <canvas #renderCanvas></canvas>
 
 @if (gameOverModalOpen()) {

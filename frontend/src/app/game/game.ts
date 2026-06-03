@@ -6,7 +6,6 @@ import {
   OnDestroy,
   PLATFORM_ID,
   ViewChild,
-  ViewEncapsulation,
   inject,
   signal,
 } from '@angular/core';
@@ -39,38 +38,18 @@ interface SavedGameResponse {
 class GameLoadingScreen implements BABYLON.ILoadingScreen {
   loadingUIBackgroundColor = '#080312';
   loadingUIText = 'Cargando PinTheBall...';
-  private loadingElement: HTMLDivElement | null = null;
+
+  constructor(
+    private readonly show: () => void,
+    private readonly hide: () => void,
+  ) {}
 
   displayLoadingUI(): void {
-    if (this.loadingElement) {
-      return;
-    }
-
-    this.loadingElement = document.createElement('div');
-    this.loadingElement.className = 'ptb-loading-screen';
-    this.loadingElement.innerHTML = `
-      <div class="ptb-loading-card" role="status" aria-live="polite">
-        <img class="ptb-loading-logo" src="/resources/LogoSmll_PTB.png" alt="PinTheBall">
-        <h1 class="ptb-loading-title">PinTheBall</h1>
-        <p class="ptb-loading-text">${this.loadingUIText}</p>
-        <div class="ptb-loading-bar" aria-hidden="true"></div>
-      </div>
-    `;
-
-    document.body.appendChild(this.loadingElement);
+    this.show();
   }
 
   hideLoadingUI(): void {
-    if (!this.loadingElement) {
-      return;
-    }
-
-    const loadingElement = this.loadingElement;
-    this.loadingElement = null;
-    loadingElement.classList.add('ptb-loading-hidden');
-    window.setTimeout(() => {
-      loadingElement.remove();
-    }, 260);
+    this.hide();
   }
 }
 
@@ -79,7 +58,6 @@ class GameLoadingScreen implements BABYLON.ILoadingScreen {
   imports: [DecimalPipe],
   templateUrl: './game.html',
   styleUrl: './game.scss',
-  encapsulation: ViewEncapsulation.None,
 })
 
 export class Game implements AfterViewInit, OnDestroy {
@@ -101,7 +79,10 @@ export class Game implements AfterViewInit, OnDestroy {
   readonly guestNameInput = signal('');
   readonly guestNameError = signal('');
   readonly guestSavingName = signal(false);
+  readonly gameLoadingVisible = signal(false);
+  readonly gameLoadingHidden = signal(false);
   private pendingGuestGameId: number | null = null;
+  private loadingHideTimeout: number | null = null;
 
   @ViewChild('renderCanvas', { static: true })
   private renderCanvasRef!: ElementRef<HTMLCanvasElement>;
@@ -142,6 +123,27 @@ export class Game implements AfterViewInit, OnDestroy {
         this.auth.setUser({ ...user, wallet: options.wallet });
       }
     }
+  }
+
+  private showGameLoading(): void {
+    if (this.loadingHideTimeout !== null) {
+      window.clearTimeout(this.loadingHideTimeout);
+      this.loadingHideTimeout = null;
+    }
+    this.gameLoadingHidden.set(false);
+    this.gameLoadingVisible.set(true);
+  }
+
+  private hideGameLoading(): void {
+    if (!this.gameLoadingVisible()) {
+      return;
+    }
+
+    this.gameLoadingHidden.set(true);
+    this.loadingHideTimeout = window.setTimeout(() => {
+      this.gameLoadingVisible.set(false);
+      this.loadingHideTimeout = null;
+    }, 260);
   }
 
   private async onGameOver(finalScore: number, durationSeconds: number): Promise<void> {
@@ -223,7 +225,10 @@ export class Game implements AfterViewInit, OnDestroy {
 
     const canvas = this.renderCanvasRef.nativeElement;
     this.engine = new BABYLON.Engine(canvas, true, { audioEngine: true });
-    this.engine.loadingScreen = new GameLoadingScreen();
+    this.engine.loadingScreen = new GameLoadingScreen(
+      () => this.ngZone.run(() => this.showGameLoading()),
+      () => this.ngZone.run(() => this.hideGameLoading()),
+    );
     this.engine.displayLoadingUI();
     this.scene = this.createScene(this.engine, canvas);
 
@@ -240,6 +245,10 @@ export class Game implements AfterViewInit, OnDestroy {
     }
 
     window.removeEventListener('resize', this.resizeHandler);
+    if (this.loadingHideTimeout !== null) {
+      window.clearTimeout(this.loadingHideTimeout);
+      this.loadingHideTimeout = null;
+    }
     this.engine?.hideLoadingUI();
     this.gameSounds?.dispose();
     this.gameSounds = null;
