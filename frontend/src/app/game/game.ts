@@ -256,38 +256,16 @@ export class Game implements AfterViewInit, OnDestroy {
     this.engine?.dispose();
   }
 
-  private createGameCamera(scene: BABYLON.Scene, canvas: HTMLCanvasElement): BABYLON.ArcRotateCamera {
-    const cameraTarget = new BABYLON.Vector3(0, 0, 0);
-    const camera = new BABYLON.ArcRotateCamera(
-      'camera1',
-      -Math.PI / 2,
-      0.35,
-      12.7,
-      cameraTarget,
-      scene,
-    );
-
-    camera.lowerAlphaLimit = -Math.PI * 1.5;
-    camera.upperAlphaLimit = Math.PI * 0.5;
-    camera.lowerBetaLimit = 0.28;
-    camera.upperBetaLimit = 1.18;
-    camera.lowerRadiusLimit = 9;
-    camera.upperRadiusLimit = 15;
-    camera.panningSensibility = 0;
-    camera.wheelPrecision = 35;
-    camera.angularSensibilityX = 1600;
-    camera.angularSensibilityY = 1600;
-    camera.minZ = 0.1;
-    camera.maxZ = 200;
-    camera.attachControl(canvas, true);
-
-    return camera;
-  }
-
   createScene = (engine: BABYLON.Engine, canvas: HTMLCanvasElement): BABYLON.Scene => {
       const scene = new BABYLON.Scene(engine);
 
-      this.createGameCamera(scene, canvas);
+      const camera = new BABYLON.FreeCamera("camera1", 
+          new BABYLON.Vector3(0, 12, -4), 
+          scene);
+
+      camera.setTarget(new BABYLON.Vector3(0, 0.9, 0));
+
+      camera.attachControl(canvas, true);
 
       const light = new BABYLON.HemisphericLight("light", 
           new BABYLON.Vector3(0, 1, 0), 
