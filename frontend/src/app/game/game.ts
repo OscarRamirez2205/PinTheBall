@@ -263,7 +263,7 @@ export class Game implements AfterViewInit, OnDestroy {
           new BABYLON.Vector3(0, 12, -4), 
           scene);
 
-      camera.setTarget(new BABYLON.Vector3(0, 4, 0));
+      camera.setTarget(new BABYLON.Vector3(0, 6, 0));
 
       camera.attachControl(canvas, true);
 
