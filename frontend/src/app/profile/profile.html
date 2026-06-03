@@ -190,14 +190,5 @@
         }
       </ul>
     </section>
-
-    <div class="profile-reminder-wrap">
-      <button type="button" class="profile-reminder" (click)="onReminder()">
-        Recordatorio por email cuando pueda jugar la siguiente partida
-      </button>
-      @if (reminderNote(); as note) {
-        <p class="profile-reminder-note">{{ note }}</p>
-      }
-    </div>
   }
 </div>
