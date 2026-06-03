@@ -115,8 +115,7 @@ class AdminDashboardController extends Controller
             ->withCount('users')
             ->when($search !== '', function ($query) use ($search): void {
                 $query->where(function ($inner) use ($search): void {
-                    $inner->where('name', 'like', "%{$search}%")
-                        ->orWhere('subname', 'like', "%{$search}%");
+                    $inner->where('name', 'like', "%{$search}%");
                 });
             })
             ->orderBy('name')
@@ -213,7 +212,6 @@ class AdminDashboardController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'subname' => 'nullable|string|max:255',
             'texture_slug' => ['nullable', 'string', 'max:64', 'regex:/^[a-z0-9-]+$/'],
             'price' => 'required|integer|min:0',
             'deal_price' => 'nullable|integer|min:0',

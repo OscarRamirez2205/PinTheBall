@@ -15,10 +15,6 @@
                     <input name="name" value="{{ old('name', $ball->name) }}" required>
                 </label>
                 <label>
-                    Subnombre
-                    <input name="subname" value="{{ old('subname', $ball->subname) }}">
-                </label>
-                <label>
                     Precio
                     <input type="number" name="price" min="0" value="{{ old('price', $ball->price) }}" required>
                 </label>

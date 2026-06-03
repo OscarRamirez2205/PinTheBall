@@ -9,7 +9,6 @@ return new class extends Migration {
         Schema::create('balls', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('subname')->nullable();
             $table->unsignedInteger('price')->default(0);
             $table->timestamps();
         });

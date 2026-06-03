@@ -9,7 +9,6 @@ export interface BallTextureMaps {
 export interface BallCatalogEntry {
   slug: string;
   name: string;
-  subname: string;
   price: number;
   dealPrice: number;
   previewUrl: string;
@@ -33,7 +32,6 @@ function entry(
   slug: string,
   assetPrefix: string,
   name: string,
-  subname: string,
   price: number,
   dealPrice: number,
   root = STATIC_TEXTURES_ROOT,
@@ -41,7 +39,6 @@ function entry(
   return {
     slug,
     name,
-    subname,
     price,
     dealPrice,
     previewUrl: `${root}/${slug}/${assetPrefix}_Preview1.png`,
@@ -52,7 +49,6 @@ function entry(
 function entryFromUrls(
   slug: string,
   name: string,
-  subname: string,
   price: number,
   dealPrice: number,
   previewUrl: string,
@@ -61,7 +57,6 @@ function entryFromUrls(
   return {
     slug,
     name,
-    subname,
     price,
     dealPrice,
     previewUrl,
@@ -71,13 +66,13 @@ function entryFromUrls(
 
 /** Bolas con texturas Poliigon servidas desde el backend en /uploads/balls-textures */
 export const BALL_TEXTURE_CATALOG: readonly BallCatalogEntry[] = [
-  entry('brickwallreclaimed', 'Poliigon_BrickWallReclaimed_8320', 'Brick Ball', 'Reclaimed Wall', 280, 110),
-  entry('grasspatchyground', 'Poliigon_GrassPatchyGround_4585', 'Grass Ball', 'Patchy Ground', 220, 90),
-  entry('metalgoldpaint', 'Poliigon_MetalGoldPaint_7253', 'Gold Ball', 'Painted Metal', 450, 180),
-  entry('metalsteelbrushed', 'Poliigon_MetalSteelBrushed_7174', 'Steel Ball', 'Brushed Metal', 0, 0),
-  entry('rattanweave', 'Poliigon_RattanWeave_6945', 'Rattan Ball', 'Woven', 320, 130),
-  entry('stonequartzite', 'Poliigon_StoneQuartzite_8060', 'Stone Ball', 'Quartzite', 360, 140),
-  entry('woodvenneroak', 'Poliigon_WoodVeneerOak_7760', 'Oak Ball', 'Wood Veneer', 300, 120),
+  entry('brickwallreclaimed', 'Poliigon_BrickWallReclaimed_8320', 'Brick Ball', 280, 110),
+  entry('grasspatchyground', 'Poliigon_GrassPatchyGround_4585', 'Grass Ball', 220, 90),
+  entry('metalgoldpaint', 'Poliigon_MetalGoldPaint_7253', 'Gold Ball', 450, 180),
+  entry('metalsteelbrushed', 'Poliigon_MetalSteelBrushed_7174', 'Steel Ball', 0, 0),
+  entry('rattanweave', 'Poliigon_RattanWeave_6945', 'Rattan Ball', 320, 130),
+  entry('stonequartzite', 'Poliigon_StoneQuartzite_8060', 'Stone Ball', 360, 140),
+  entry('woodvenneroak', 'Poliigon_WoodVeneerOak_7760', 'Oak Ball', 300, 120),
 ] as const;
 
 /** Bola clásica gratuita (Steel Ball). */
@@ -98,7 +93,6 @@ export interface ApiBallTextureRow {
   texture_roughness_url?: string | null;
   texture_ambient_occlusion_url?: string | null;
   name?: string | null;
-  subname?: string | null;
   price?: number | null;
   deal_price?: number | null;
 }
@@ -122,7 +116,6 @@ export function registerUploadedBallTextures(rows: readonly ApiBallTextureRow[])
         entryFromUrls(
           row.texture_slug,
           row.name ?? row.texture_slug,
-          row.subname ?? '',
           row.price ?? 0,
           row.deal_price ?? 0,
           row.texture_preview_url,
@@ -144,7 +137,6 @@ export function registerUploadedBallTextures(rows: readonly ApiBallTextureRow[])
         row.texture_slug,
         row.texture_asset_prefix ?? row.texture_slug,
         row.name ?? row.texture_slug,
-        row.subname ?? '',
         row.price ?? 0,
         row.deal_price ?? 0,
         STATIC_TEXTURES_ROOT,
@@ -157,7 +149,7 @@ export function getBallCatalogEntry(slug: string | null | undefined): BallCatalo
   if (!slug) {
     return undefined;
   }
-  return bySlug.get(slug) ?? uploadedBySlug.get(slug) ?? entry(slug, slug, slug, '', 0, 0);
+  return bySlug.get(slug) ?? uploadedBySlug.get(slug) ?? entry(slug, slug, slug, 0, 0);
 }
 
 export function ballPreviewUrl(textureSlug: string | null | undefined): string {

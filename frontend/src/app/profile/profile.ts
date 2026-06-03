@@ -30,7 +30,6 @@ export interface GameDto {
 export interface ApiBall {
   id: number;
   name: string;
-  subname: string | null;
   texture_slug: string | null;
   texture_asset_prefix?: string | null;
   price: number;

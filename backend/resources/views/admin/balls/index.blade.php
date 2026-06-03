@@ -23,7 +23,7 @@
 
     <form class="toolbar" method="get" action="{{ route('admin.balls') }}">
         <label>
-            Buscar por nombre o subnombre
+            Buscar por nombre
             <input name="q" value="{{ $search }}" placeholder="Ej: metal">
         </label>
         <button class="button" type="submit">Buscar</button>
@@ -34,7 +34,6 @@
         <thead>
             <tr>
                 <th>Nombre</th>
-                <th>Subnombre</th>
                 <th>Precio</th>
                 <th>Oferta</th>
                 <th>Textura</th>
@@ -47,7 +46,6 @@
             @forelse ($balls as $ball)
                 <tr>
                     <td>{{ $ball->name }}</td>
-                    <td>{{ $ball->subname ?? '-' }}</td>
                     <td>{{ $ball->price }}</td>
                     <td>{{ $ball->deal_price ?? '-' }}</td>
                     <td>{{ $ball->texture_slug ?? '-' }}</td>
@@ -56,7 +54,7 @@
                     <td><a href="{{ route('admin.balls.edit', $ball) }}">Editar</a></td>
                 </tr>
             @empty
-                <tr><td colspan="8">No se han encontrado bolas.</td></tr>
+                <tr><td colspan="7">No se han encontrado bolas.</td></tr>
             @endforelse
         </tbody>
     </table>

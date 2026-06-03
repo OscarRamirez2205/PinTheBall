@@ -15,7 +15,6 @@ class BallsSeeder extends Seeder {
         DB::table('balls')->insert([
             [
                 'name' => 'Brick Ball',
-                'subname' => 'Reclaimed Wall',
                 'texture_slug' => 'brickwallreclaimed',
                 'price' => 280,
                 'deal_price' => 110,
@@ -24,7 +23,6 @@ class BallsSeeder extends Seeder {
             ],
             [
                 'name' => 'Grass Ball',
-                'subname' => 'Patchy Ground',
                 'texture_slug' => 'grasspatchyground',
                 'price' => 220,
                 'deal_price' => 90,
@@ -33,7 +31,6 @@ class BallsSeeder extends Seeder {
             ],
             [
                 'name' => 'Gold Ball',
-                'subname' => 'Painted Metal',
                 'texture_slug' => 'metalgoldpaint',
                 'price' => 450,
                 'deal_price' => 180,
@@ -42,7 +39,6 @@ class BallsSeeder extends Seeder {
             ],
             [
                 'name' => 'Steel Ball',
-                'subname' => 'Brushed Metal',
                 'texture_slug' => 'metalsteelbrushed',
                 'price' => 0,
                 'deal_price' => 0,
@@ -51,7 +47,6 @@ class BallsSeeder extends Seeder {
             ],
             [
                 'name' => 'Rattan Ball',
-                'subname' => 'Woven',
                 'texture_slug' => 'rattanweave',
                 'price' => 320,
                 'deal_price' => 130,
@@ -60,7 +55,6 @@ class BallsSeeder extends Seeder {
             ],
             [
                 'name' => 'Stone Ball',
-                'subname' => 'Quartzite',
                 'texture_slug' => 'stonequartzite',
                 'price' => 360,
                 'deal_price' => 140,
@@ -69,7 +63,6 @@ class BallsSeeder extends Seeder {
             ],
             [
                 'name' => 'Oak Ball',
-                'subname' => 'Wood Veneer',
                 'texture_slug' => 'woodvenneroak',
                 'price' => 300,
                 'deal_price' => 120,

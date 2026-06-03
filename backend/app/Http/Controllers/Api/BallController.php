@@ -17,7 +17,6 @@ class BallController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'subname' => 'nullable|string|max:255',
             'texture_slug' => 'nullable|string|max:64',
             'texture_asset_prefix' => 'nullable|string|max:128',
             'texture_preview_url' => 'nullable|string|max:255',
@@ -44,7 +43,6 @@ class BallController extends Controller
     {
         $data = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'subname' => 'nullable|string|max:255',
             'texture_slug' => 'sometimes|nullable|string|max:64',
             'texture_asset_prefix' => 'sometimes|nullable|string|max:128',
             'texture_preview_url' => 'sometimes|nullable|string|max:255',

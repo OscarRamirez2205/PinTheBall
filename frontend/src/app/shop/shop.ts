@@ -18,7 +18,6 @@ import { apiFetch } from '../shared/api-fetch';
 interface ApiBallRow {
   id: number;
   name: string;
-  subname: string | null;
   texture_slug: string | null;
   texture_asset_prefix?: string | null;
   price: number;

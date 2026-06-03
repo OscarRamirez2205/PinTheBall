@@ -14,10 +14,6 @@
                     <input name="name" value="{{ old('name') }}" required>
                 </label>
                 <label>
-                    Subnombre
-                    <input name="subname" value="{{ old('subname') }}">
-                </label>
-                <label>
                     Precio
                     <input type="number" name="price" min="0" value="{{ old('price', 0) }}" required>
                 </label>

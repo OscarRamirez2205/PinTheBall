@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void {
         Schema::table('balls', function (Blueprint $table) {
-            $table->string('texture_slug', 64)->nullable()->after('subname');
+            $table->string('texture_slug', 64)->nullable()->after('name');
         });
     }
 

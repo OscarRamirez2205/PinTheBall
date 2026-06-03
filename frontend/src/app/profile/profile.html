@@ -77,9 +77,6 @@
               (click)="selectBall(ball)"
             >
               <span class="profile-ball-name">{{ ball.name }}</span>
-              @if (ball.subname) {
-                <span class="profile-ball-sub">{{ ball.subname }}</span>
-              }
               <img
                 class="profile-ball-preview"
                 [src]="previewFor(ball)"

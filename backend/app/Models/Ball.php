@@ -11,7 +11,6 @@ class Ball extends Model
 
     protected $fillable = [
         'name',
-        'subname',
         'texture_slug',
         'texture_asset_prefix',
         'texture_preview_url',
