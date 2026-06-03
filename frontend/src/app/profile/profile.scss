@@ -445,6 +445,17 @@
   border: 1px solid rgba($text-color-1, 0.12);
   background: rgba($background-color1, 0.45);
   padding: 0.5rem 0.65rem;
+
+  &--you {
+    border: 1px solid rgba($secondary-color, 0.55);
+    background: rgba($secondary-color, 0.08);
+    box-shadow: 0 0 14px rgba($secondary-color, 0.12);
+
+    .profile-friends-name {
+      color: $secondary-color;
+      font-weight: 700;
+    }
+  }
 }
 
 .profile-friends-rank {

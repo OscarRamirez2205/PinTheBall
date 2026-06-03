@@ -135,13 +135,13 @@
         <h3 class="profile-friends-subtitle">Leaderboard de amigos</h3>
         <ol class="profile-friends-list">
           @for (friend of friendLeaderboard(); track trackFriend($index, friend)) {
-            <li class="profile-friends-row">
+            <li
+              class="profile-friends-row"
+              [class.profile-friends-row--you]="friend.is_current_user"
+            >
               <span class="profile-friends-rank">{{ $index + 1 }}</span>
               <span class="profile-friends-name">
                 {{ friend.name || friend.email }}
-                @if (friend.is_current_user) {
-                  (Tú)
-                }
               </span>
               <span class="profile-friends-score">{{ friend.best_score }}</span>
             </li>
