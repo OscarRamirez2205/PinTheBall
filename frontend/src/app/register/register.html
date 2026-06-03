@@ -16,8 +16,11 @@
           title="Exactamente tres letras, como en los marcadores arcade"
           pattern="[A-Za-z]{3}"
           [(ngModel)]="form.name"
+          [class.valid]="isValid('name')"
+          [class.invalid]="isInvalid('name')"
           required
         />
+        <span class="error">{{ fieldErrors().name }}</span>
         <small class="input-hint">Solo letras de la A a la Z, tres caracteres en mayúsculas.</small>
       </div>
 
@@ -30,8 +33,11 @@
           autocomplete="email"
           placeholder="Introduce tu email"
           [(ngModel)]="form.email"
+          [class.valid]="isValid('email')"
+          [class.invalid]="isInvalid('email')"
           required
         />
+        <span class="error">{{ fieldErrors().email }}</span>
       </div>
 
       <div class="input-group">
@@ -41,11 +47,14 @@
           type="password"
           name="password"
           autocomplete="new-password"
-          placeholder="Mínimo 6 caracteres"
+          placeholder="8 caracteres, mayúscula, minúscula y número"
           [(ngModel)]="form.password"
+          [class.valid]="isValid('password')"
+          [class.invalid]="isInvalid('password')"
           required
-          minlength="6"
+          minlength="8"
         />
+        <span class="error">{{ fieldErrors().password }}</span>
       </div>
 
       <div class="input-group">
@@ -57,12 +66,15 @@
           autocomplete="new-password"
           placeholder="Repite la contraseña"
           [(ngModel)]="form.passwordConfirm"
+          [class.valid]="isValid('passwordConfirm')"
+          [class.invalid]="isInvalid('passwordConfirm')"
           required
         />
+        <span class="error">{{ fieldErrors().passwordConfirm }}</span>
       </div>
 
       <button type="submit" [disabled]="submitting()">
-        {{ submitting() ? 'REGISTRANDO…' : 'REGISTRARSE' }}
+        {{ submitting() ? 'REGISTRANDO...' : 'REGISTRARSE' }}
       </button>
     </form>
 

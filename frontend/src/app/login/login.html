@@ -2,7 +2,7 @@
   <div class="login-box">
     <h1 class="title">Login</h1>
 
-    <form (ngSubmit)="iniciarSesion()">
+    <form (ngSubmit)="login()">
       <div class="input-group">
         <label for="login-email">Email</label>
         <input
@@ -12,8 +12,11 @@
           autocomplete="email"
           placeholder="Introduce tu email"
           [(ngModel)]="credentials.email"
+          [class.valid]="isValid('email')"
+          [class.invalid]="isInvalid('email')"
           required
         />
+        <span class="error">{{ fieldErrors().email }}</span>
       </div>
 
       <div class="input-group">
@@ -25,8 +28,11 @@
           autocomplete="current-password"
           placeholder="Introduce tu contraseña"
           [(ngModel)]="credentials.password"
+          [class.valid]="isValid('password')"
+          [class.invalid]="isInvalid('password')"
           required
         />
+        <span class="error">{{ fieldErrors().password }}</span>
       </div>
 
       <button type="submit">ENTRAR</button>

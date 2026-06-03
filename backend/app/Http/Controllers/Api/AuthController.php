@@ -16,12 +16,12 @@ class AuthController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'regex:/^[A-Za-z]{3}$/'],
             'email' => 'required|email|max:255|unique:users,email',
-            'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'password' => ['required', 'string', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/', 'confirmed'],
         ], [
             'name.regex' => 'El nombre debe ser exactamente 3 letras (A-Z), estilo marcador arcade.',
             'email.unique' => 'Ya existe una cuenta con este correo electrónico.',
             'email.email' => 'Introduce un correo electrónico válido.',
-            'password.min' => 'La contraseña debe tener al menos 6 caracteres.',
+            'password.regex' => 'Debe tener 8 caracteres, una mayúscula, una minúscula y un número.',
             'password.confirmed' => 'Las contraseñas no coinciden.',
         ]);
 
