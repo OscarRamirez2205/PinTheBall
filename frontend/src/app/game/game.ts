@@ -264,11 +264,7 @@ export class Game implements AfterViewInit, OnDestroy {
           scene);
 
       camera.setTarget(new BABYLON.Vector3(0, 6, 0));
-
       camera.speed = 0.15;
-      camera.angularSensibility = 5000;
-      camera.wheelPrecision = 60;
-      camera.inertia = 0.94;
 
       camera.attachControl(canvas, true);
 
