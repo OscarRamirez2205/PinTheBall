@@ -14,6 +14,7 @@ interface OwnedBall {
 const LEGACY_ID_KEY = 'ptb_selected_ball_id';
 const LEGACY_SLUG_KEY = 'ptb_selected_ball_texture_slug';
 
+/** Bola activa en partida (perfil/tienda + localStorage por usuario). */
 @Injectable({ providedIn: 'root' })
 export class SelectedBallService {
   private readonly platformId = inject(PLATFORM_ID);

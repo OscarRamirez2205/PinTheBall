@@ -6,6 +6,7 @@ import {
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
+  // Layout con navbar: inicio, perfil, tienda, leaderboard
   {
     path: '',
     loadComponent: () => import('./shell/shell').then((m) => m.Shell),
@@ -30,6 +31,7 @@ export const routes: Routes = [
       },
     ],
   },
+  // Auth y cierre (fuera del shell)
   {
     path: 'login',
     loadComponent: () => import('./login/login').then((m) => m.Login),
@@ -42,6 +44,7 @@ export const routes: Routes = [
     path: 'logout',
     loadComponent: () => import('./logout/logout').then((m) => m.Logout),
   },
+  // Partida a pantalla completa (sin navbar)
   {
     path: 'game',
     canActivate: [redirectToLeaderboardIfDailyDoneGuard],

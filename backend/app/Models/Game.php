@@ -24,7 +24,7 @@ class Game extends Model
         ];
     }
 
-    // 🔗 Una partida pertenece a un usuario
+    // Una partida pertenece a un usuario
     public function user()
     {
         return $this->belongsTo(User::class, 'player_id');

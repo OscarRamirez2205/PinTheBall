@@ -4,6 +4,7 @@ import { localDateKey } from '../shared/local-midnight';
 
 const STORAGE_KEY = 'pinball_daily_completed_local_date';
 
+/** Una partida al día (clave en localStorage por fecha local). */
 @Injectable({ providedIn: 'root' })
 export class DailyPlayLockService {
   private readonly platformId = inject(PLATFORM_ID);

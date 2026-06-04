@@ -15,6 +15,7 @@ type FieldState = '' | 'valid' | 'invalid';
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
+/** Formulario de acceso; admins van al panel Laravel. */
 export class Login {
   private readonly authService = inject(AuthService);
   private readonly selectedBall = inject(SelectedBallService);
@@ -26,6 +27,7 @@ export class Login {
     email: '',
     password: '',
   });
+  
   fieldStates = signal<Record<LoginField, FieldState>>({
     email: '',
     password: '',
@@ -46,6 +48,7 @@ export class Login {
 
     try {
       const res = await this.authService.login(this.credentials.email.trim(), this.credentials.password);
+      // Panel de administración (sesión no guardada en la app)
       if (res.user.role === 'admin' && res.admin_url) {
         window.location.href = this.authService.backendUrl(res.admin_url);
         return;

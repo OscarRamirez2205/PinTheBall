@@ -31,6 +31,7 @@ interface ApiBallRow {
   templateUrl: './shop.html',
   styleUrl: './shop.scss',
 })
+/** Catálogo de bolas, oferta del día y compra con monedas. */
 export class Shop {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly auth = inject(AuthService);
@@ -89,6 +90,7 @@ export class Shop {
       return;
     }
 
+    // Requiere login (authGuard + comprobación aquí)
     const sesion = this.auth.getUser();
     if (!sesion) {
       void this.router.navigate(['/login'], { queryParams: { returnUrl: '/shop' } });

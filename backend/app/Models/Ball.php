@@ -31,7 +31,7 @@ class Ball extends Model
         ];
     }
 
-    // 🔗 Una bola puede pertenecer a muchos usuarios
+    // Una bola puede pertenecer a muchos usuarios
     public function users()
     {
         return $this->belongsToMany(User::class, 'user_ball', 'ball_id', 'users_id');

@@ -24,6 +24,7 @@ export interface LoginResponse {
 const TOKEN_KEY = 'ptb_auth_token';
 const USER_KEY = 'ptb_auth_user';
 
+/** Sesión en localStorage: token, usuario y login/registro contra la API. */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly platformId = inject(PLATFORM_ID);
@@ -62,6 +63,8 @@ export class AuthService {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
+
+    // Admin: no se guarda sesión en la app de juego
     if (res.user.role === 'admin') {
       this.clearToken();
       return res;

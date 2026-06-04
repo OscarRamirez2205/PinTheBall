@@ -29,6 +29,7 @@ interface ApiRankingRow {
   templateUrl: './leaderboard.html',
   styleUrl: './leaderboard.scss',
 })
+/** Clasificación semanal y general (top 10 + tu fila si quedas fuera). */
 export class Leaderboard {
   private readonly router = inject(Router);
   private readonly dailyLock = inject(DailyPlayLockService);
@@ -48,6 +49,7 @@ export class Leaderboard {
   });
 
   constructor() {
+    // Solo tras la partida diaria de hoy
     effect(() => {
       this.clockTick();
       if (!this.dailyLock.hasCompletedDailyToday()) {
@@ -65,6 +67,7 @@ export class Leaderboard {
     return item.kind === 'gap' ? `g-gap-${indice}` : `g-${item.row.rank}-${item.row.score}`;
   }
 
+  // Ranking semanal y global en paralelo
   private async loadLeaderboards(): Promise<void> {
     try {
       const [weeklyRows, generalRows] = await Promise.all([
@@ -81,6 +84,7 @@ export class Leaderboard {
     }
   }
 
+  // Marca la fila del usuario logueado y aplica top 10 + overflow
   private toTopItems(rows: ApiRankingRow[]): LeaderboardListItem[] {
     const currentUserId = this.auth.getUser()?.id ?? null;
     const mapped: LeaderboardRow[] = rows.map((row) => ({

@@ -15,6 +15,7 @@ type FieldState = '' | 'valid' | 'invalid';
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
+/** Alta de jugador: nombre arcade de 3 letras y validación de contraseña. */
 export class Register {
   private readonly auth = inject(AuthService);
   private readonly selectedBall = inject(SelectedBallService);

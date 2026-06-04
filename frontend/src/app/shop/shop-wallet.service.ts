@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 
+/** Monedas y bolas compradas en memoria (sincronizado con la API). */
 @Injectable({ providedIn: 'root' })
-
 export class ShopWalletService {
   private readonly _coins = signal(0);
   private readonly _ownedBallIds = signal<Set<number>>(new Set());

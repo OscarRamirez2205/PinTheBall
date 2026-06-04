@@ -1,3 +1,4 @@
+/** fetch con token Bearer, JSON y errores tipados. */
 export interface ApiFetchHttpError {
   status: number;
   error: unknown;

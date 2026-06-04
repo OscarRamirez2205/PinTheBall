@@ -6,7 +6,12 @@ import { AuthService } from '../services/auth.service';
 import { SelectedBallService } from '../services/selected-ball.service';
 import { ballPreviewImage } from '../shared/ball-preview';
 import { registerUploadedBallTextures } from '../shared/ball-textures.catalog';
-import {currentPlayStreak, gamesToDaySet, lastNDaysPlayFlags, longestPlayStreak,} from './profile.logic';/** Stats del usuario */
+import {
+  currentPlayStreak,
+  gamesToDaySet,
+  lastNDaysPlayFlags,
+  longestPlayStreak,
+} from './profile.logic';
 import { apiFetch } from '../shared/api-fetch';
 
 export interface ProfileUser {
@@ -51,6 +56,7 @@ interface FriendNotification {
   created_at: string | null;
 }
 
+/** Huecos visibles del inventario en la rejilla del perfil. */
 const INVENTORY_VISIBLE_SLOTS = 10;
 
 @Component({
@@ -61,6 +67,7 @@ const INVENTORY_VISIBLE_SLOTS = 10;
   styleUrl: './profile.scss',
 })
 
+/** Perfil: stats, inventario de bolas, amigos y notificaciones. */
 export class Profile {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly auth = inject(AuthService);
@@ -103,6 +110,7 @@ export class Profile {
       return;
     }
 
+    // Sin sesión → login
     const sesion = this.auth.getUser();
     if (!sesion) {
       this.loading.set(false);
@@ -163,6 +171,7 @@ export class Profile {
     void this.respondToFriendRequest(notification.from_user_id, 'rejected');
   }
 
+  // Usuario, partidas, bolas y luego ranking de amigos
   private async loadProfileData(userId: number): Promise<void> {
     try {
       const [perfil, partidas, bolas] = await Promise.all([

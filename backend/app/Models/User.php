@@ -37,13 +37,13 @@ class User extends Authenticatable
         ];
     }
 
-    // 🔗 Un usuario tiene muchas partidas
+    // Un usuario tiene muchas partidas
     public function games()
     {
         return $this->hasMany(Game::class, 'player_id');
     }
 
-    // 🔗 Un usuario puede tener muchas bolas (N:M)
+    // Un usuario puede tener muchas bolas (N:M)
     public function balls()
     {
         return $this->belongsToMany(Ball::class, 'user_ball', 'users_id', 'ball_id');

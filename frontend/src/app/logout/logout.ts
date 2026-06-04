@@ -3,6 +3,7 @@ import { Component, inject, PLATFORM_ID } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { SelectedBallService } from '../services/selected-ball.service';
 
+/** Limpia sesión y bolas seleccionadas; vuelve al inicio. */
 @Component({
   standalone: true,
   template: '',

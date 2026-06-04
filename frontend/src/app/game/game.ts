@@ -1,14 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  NgZone,
-  OnDestroy,
-  PLATFORM_ID,
-  ViewChild,
-  inject,
-  signal,
-} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, NgZone, OnDestroy, PLATFORM_ID, ViewChild, inject, signal,} from '@angular/core';
 import { DecimalPipe, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { DailyPlayLockService } from '../services/daily-play-lock.service';
@@ -60,6 +50,7 @@ class GameLoadingScreen implements BABYLON.ILoadingScreen {
   styleUrl: './game.scss',
 })
 
+/** Partida diaria en 3D (Babylon + Havok); guarda puntuación y bloquea hasta mañana. */
 export class Game implements AfterViewInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly dailyLock = inject(DailyPlayLockService);
@@ -87,6 +78,7 @@ export class Game implements AfterViewInit, OnDestroy {
   @ViewChild('renderCanvas', { static: true })
   private renderCanvasRef!: ElementRef<HTMLCanvasElement>;
 
+  // POST a la API al terminar la partida
   private async saveFinishedGame(
     finalScore: number,
     durationSeconds: number,
@@ -102,6 +94,7 @@ export class Game implements AfterViewInit, OnDestroy {
     });
   }
 
+  // Modal final: confeti, monedas y nombre de invitado (3 letras)
   private openGameOverModal(
     finalScore: number,
     options: { isGuest: boolean; gameId: number | null; coinsEarned: number; wallet?: number },
@@ -146,6 +139,7 @@ export class Game implements AfterViewInit, OnDestroy {
     }, 260);
   }
 
+  // Sin vidas: guardar partida y mostrar modal
   private async onGameOver(finalScore: number, durationSeconds: number): Promise<void> {
     const user = this.auth.getUser();
     const isGuest = !user?.id;
@@ -213,6 +207,7 @@ export class Game implements AfterViewInit, OnDestroy {
     }
   }
 
+  // Motor Babylon, escena y bucle de render
   ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
@@ -256,6 +251,7 @@ export class Game implements AfterViewInit, OnDestroy {
     this.engine?.dispose();
   }
 
+  // Cámara, física Havok, modelo GLB y controles del pinball
   createScene = (engine: BABYLON.Engine, canvas: HTMLCanvasElement): BABYLON.Scene => {
       const scene = new BABYLON.Scene(engine);
 
@@ -951,9 +947,7 @@ export class Game implements AfterViewInit, OnDestroy {
   };
 
 
-  /**
-   * Funcion para llamarla al acabar la partida para que hace uso del servicio de bloqueo de partida diaria
-   */
+  /** Marca la partida diaria hecha y va al leaderboard. */
   finishDailyRun(): void {
     this.dailyLock.markDailyCompleted();
     void this.router.navigate(['/leaderboard']);
