@@ -264,7 +264,7 @@ export class Game implements AfterViewInit, OnDestroy {
           scene);
 
       camera.setTarget(new BABYLON.Vector3(0, 6, 0));
-      camera.speed = 0.15;
+      camera.speed = 0.25;
 
       camera.attachControl(canvas, true);
 
